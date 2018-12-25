@@ -84,7 +84,7 @@ public class CapGraph implements Graph {
 
 	public String toString() {
 		String s = "Adjacency list representation\n";
-		s += "Number of vertices - + graphAdjList.size()";
+		s += "Number of vertices - " + graphAdjList.size();
 
 		for (int vertex : graphAdjList.keySet()) {
 			s += "\n\t"+vertex+": ";
