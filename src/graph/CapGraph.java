@@ -57,7 +57,28 @@ public class CapGraph implements Graph {
 	@Override
 	public Graph getEgonet(int center) {
 		// TODO Auto-generated method stub
-		return null;
+		Graph egonet = new CapGraph();
+
+		Integer node = Integer.valueOf(center);
+		List<Integer> neighbors = graphAdjList.get(node);
+
+		// Populate egonet for node
+		egonet.addVertex(node);
+		for (Integer neighbor:neighbors) {
+			// Add neighbors
+			egonet.addVertex(neighbor);
+			egonet.addEdge(node, neighbor);
+			egonet.addEdge(neighbor, node);
+
+			// Populate other eligible edges
+			// Add only those neighbors of the neighbor who are nodes' neighbors
+			for (Integer neighborOfNeighor: graphAdjList.get(neighbor)) {
+				if (neighbors.contains(neighborOfNeighor)) {
+					egonet.addEdge(neighbor, neighborOfNeighor);
+				}
+			}
+		}
+		return egonet;
 	}
 
 	/* (non-Javadoc)
