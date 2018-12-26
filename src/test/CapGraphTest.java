@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import graph.CapGraph;
 import graph.Graph;
 import util.GraphLoader;
@@ -28,7 +26,7 @@ class CapGraphTest {
 
 	private void loadGraph(Graph graph, String fileName) {
 		GraphLoader.loadGraph(graph, fileName);
-		System.out.println("Loaded " + fileName);
+		System.out.print("Loaded " + fileName);
 		System.out.println(graph);
 	}
 
@@ -82,42 +80,28 @@ class CapGraphTest {
 		System.out.println("Egonet under test - " + egonetToTest);
 
 		// Compare expected and received ego net
-		for (Map.Entry<Integer, HashSet<Integer>> entry : egonetToTest.entrySet()) {
+		boolean result = doGraphsMatch(egonetToTest, expectedEgonet);
+		if (result == false) {
+			assertFalse(true, "Generated egonet does not match expected ego net");
+		}
+	}
+
+	private boolean doGraphsMatch(HashMap<Integer, HashSet<Integer>> first,
+			HashMap<Integer, HashSet<Integer>> second) {
+		// Verify size
+		if (first.size() != second.size()) {
+			return false;
+		}
+
+		for (Map.Entry<Integer, HashSet<Integer>> entry : first.entrySet()) {
 			Integer node = entry.getKey();
 			HashSet<Integer> neighbors = entry.getValue();
-
-			if (expectedEgonet.containsKey(node) &&
-					expectedEgonet.get(node).equals(neighbors)){
-				continue; 
-			}
-			else {
-				assertTrue(false, "Generated egonet does not match expected ego net");
-				break;
+			// Verify that every node and every edge matches
+			if (!second.containsKey(node) ||
+					!second.get(node).equals(neighbors)){
+				return false;
 			}
 		}
-		assertTrue(true, "Generated egonet matches exactly with expected ego net");
-	}
-
-	@Test
-	void testDfs() {
-		// Test on a even smaller dataset
-		System.out.println("\nTEST - testDfs");
-		CapGraph testGraphForDfs = new CapGraph();
-		loadGraph(testGraphForDfs, "data/test_data_for_scc.txt");
-
-		Stack<Integer> vertices = new Stack<Integer>();
-		for (Integer vertex: testGraphForDfs.exportGraph().keySet()){	
-			vertices.push(vertex);
-		}
-		testGraphForDfs.dfs(vertices);
-		assertFalse(true);
-	}
-
-	@Test
-	void testGetSCC() {
-		System.out.println("\nTEST - testGetSCC");
-		// Test on a even smaller dataset
-		loadGraph(testGraph, "data/test_data_for_scc.txt");
-		assertFalse(true);
+		return true;
 	}
 }
