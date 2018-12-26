@@ -83,12 +83,130 @@ public class CapGraph implements Graph {
 		return egonet;
 	}
 
+
 	/* (non-Javadoc)
 	 * @see graph.Graph#getSCCs()
 	 */
 	@Override
 	public List<Graph> getSCCs() {
-		return null;
+		/*
+		 Core Algorithm
+		 Step 1 - Run DFS on G and store the order of traversal
+		 Step 2 - Get G` (transpose of G)
+		 Step 3 - Run DFS in reverse order of traversal in Step 1
+		*/
+
+		// Initialize
+		List<Graph> listOfSCCs = new ArrayList<Graph>();
+		List<Stack<Integer>> listOfStackOfNodesInSCCs = new ArrayList<Stack<Integer>>();
+
+		// Step 1 - Run DFS on G and store the order of traversal
+		Stack<Integer> initialDFS = DFS(getGraphVertices(), this, listOfStackOfNodesInSCCs);
+		System.out.println("Initial DFS - " + initialDFS);
+
+		// Step 2 - Get G` (transpose of G)
+		Graph transposedGraph = getTransposedGraph();
+
+		// Step 3 - Run DFS in reverse order of traversal in Step 1
+		listOfStackOfNodesInSCCs = new ArrayList<Stack<Integer>>();
+		Stack<Integer> finalDFS = DFS(initialDFS, transposedGraph, listOfStackOfNodesInSCCs);
+
+		// Post processing
+		listOfSCCs = constructSCCsfromNodes(listOfStackOfNodesInSCCs);
+
+		System.out.println("List of list of nodes in SCC - " + listOfStackOfNodesInSCCs);
+		System.out.println("List of SCCs - " + listOfSCCs);
+		return listOfSCCs;
+	}
+
+	public Stack<Integer> DFS(Stack<Integer> vertices, Graph graph, List<Stack<Integer>> listOfListOfNodesInSCCs) {
+		System.out.println("\n\nRunning DFS on - " + graph);
+		System.out.println("  Vertices to visit - " + vertices);
+
+		HashSet<Integer> visited = new HashSet<Integer>();
+		Stack<Integer> finished = new Stack<Integer>();
+
+		while(!vertices.isEmpty()) {
+			Integer vertex = vertices.pop();
+
+			if (!visited.contains(vertex)) {
+				Stack<Integer> exploredVerticesInThisRun = new Stack<Integer>();
+				DFSVisit(vertex, visited, finished, graph, exploredVerticesInThisRun);
+				listOfListOfNodesInSCCs.add(exploredVerticesInThisRun);
+
+				System.out.println("Finished - " + finished);
+				System.out.println("Explored vertices - " + exploredVerticesInThisRun);
+			}
+		}
+		return finished;
+	}
+
+	public void DFSVisit(Integer vertex, HashSet<Integer> visited, Stack<Integer> finished,
+			Graph graph, Stack<Integer> exploredVerticesInThisRun) {
+		visited.add(vertex);
+		HashSet<Integer> neighbors = graph.exportGraph().get(vertex);
+
+		System.out.println("\nVisiting - " + vertex);
+		System.out.println("Neighbors of " + vertex + " - " + neighbors);
+		System.out.println("Visited - " + visited);
+
+		for (Integer neighbor: neighbors) {
+			if (!visited.contains(neighbor)) {
+				visited.add(neighbor);
+				DFSVisit(neighbor, visited, finished, graph, exploredVerticesInThisRun);
+			}
+		}
+		finished.add(vertex);
+		exploredVerticesInThisRun.push(vertex);
+		System.out.println("Done with " + vertex + " - no more unvisited neighbors");
+		System.out.println("Adding to finished and exploredVerticesInThisRun- " + vertex);
+		System.out.println("Finished - " + finished);
+		System.out.println("Explored vertices in this run - " + exploredVerticesInThisRun);
+	}
+
+	private List<Graph> constructSCCsfromNodes(List<Stack<Integer>> listOfStackOfNodesInSCCs) {
+		List<Graph> listOfSCCs = new ArrayList<Graph>();
+		for (Stack<Integer> stackOfNodes: listOfStackOfNodesInSCCs) {
+			listOfSCCs.add(constructGraphFromStackOfNodes(stackOfNodes));
+		}
+		return listOfSCCs;
+	}
+
+	private Graph constructGraphFromStackOfNodes(Stack<Integer> stackOfNodes) {
+		Graph graph = new CapGraph();
+		ArrayList<Integer> listOfNodes = new ArrayList<Integer>(stackOfNodes);
+		while(!stackOfNodes.isEmpty()) {
+			Integer node = stackOfNodes.pop();
+			graph.addVertex(node);
+			for(Integer neighbor:graphAdjList.get(node)) {
+				if (listOfNodes.contains(neighbor)) {
+					graph.addEdge(node,  neighbor);
+				}
+			}
+		}
+		return graph;
+	}
+
+	public Graph getTransposedGraph() {
+		Graph graph = new CapGraph();
+
+		for (Map.Entry<Integer, ArrayList<Integer>> entry : graphAdjList.entrySet()) {
+			Integer node = entry.getKey();
+			graph.addVertex(node);
+			for (Integer neighbor: entry.getValue()) {
+				graph.addVertex(neighbor);
+				graph.addEdge(neighbor, node);
+			}
+		}
+		return graph;
+	}
+
+	private Stack<Integer> getGraphVertices() {
+		Stack<Integer> vertices = new Stack<Integer>();
+		for (Integer vertex: graphAdjList.keySet()){
+			vertices.push(vertex);
+		}
+		return vertices;
 	}
 
 	/* (non-Javadoc)

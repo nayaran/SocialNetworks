@@ -2,10 +2,13 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,5 +86,104 @@ class CapGraphTest {
 		if (result == false) {
 			assertFalse(true, "Generated egonet does not match expected ego net");
 		}
+	}
+
+
+	@Test
+	void testDfs() {
+		// Test on a even smaller dataset
+		System.out.println("\nTEST - testDfs");
+		CapGraph testGraphForDfs;
+		Stack<Integer> expectedStack;
+		Stack<Integer> stackToTest;
+
+		// Initialize
+		testGraphForDfs = new CapGraph();
+		loadGraph(testGraphForDfs, "data/test_data_for_scc.txt");
+
+		expectedStack = new Stack<Integer>();
+		ArrayList<Integer> testData = new ArrayList<Integer>(Arrays.asList(50, 44, 18, 23, 65, 25, 32));
+		for (Integer vertex: testData) {
+			expectedStack.push(vertex);
+		}
+
+		Stack<Integer> vertices = new Stack<Integer>();
+		for (Integer vertex: testGraphForDfs.exportGraph().keySet()){
+			vertices.push(vertex);
+		}
+		stackToTest = testGraphForDfs.DFS(vertices, testGraphForDfs, new ArrayList<Stack<Integer>>());
+		System.out.println("Expected stack - " + expectedStack);
+		System.out.println("Stack to test - " + stackToTest);
+		assertEquals(expectedStack, stackToTest);
+	}
+
+	@Test
+	void testGetSCC() {
+		System.out.println("\nTEST - testGetSCC");
+		// Test on a even smaller dataset
+		loadGraph(testGraph, "data/test_data_for_scc.txt");
+
+		List<Graph> expectedListOfSCC = new ArrayList<Graph>();
+		Graph firstSCC = new CapGraph();
+		firstSCC.addVertex(32);
+		Graph secondSCC = new CapGraph();
+		secondSCC.addVertex(44);
+		Graph thirdSCC = new CapGraph();
+		thirdSCC.addVertex(50);
+		Graph fourthSCC = new CapGraph();
+		fourthSCC.addVertex(25);
+		fourthSCC.addVertex(65);
+		fourthSCC.addVertex(23);
+		fourthSCC.addVertex(18);
+		fourthSCC.addEdge(25,  23);
+		fourthSCC.addEdge(25,  65);
+		fourthSCC.addEdge(25,  18);
+		fourthSCC.addEdge(65,  23);
+		fourthSCC.addEdge(18,  23);
+		fourthSCC.addEdge(23,  25);
+		fourthSCC.addEdge(23,  18);
+		expectedListOfSCC.add(firstSCC);
+		expectedListOfSCC.add(secondSCC);
+		expectedListOfSCC.add(thirdSCC);
+		expectedListOfSCC.add(fourthSCC);
+
+		List<Graph> listOfSCCToTest = testGraph.getSCCs();
+		System.out.println("Expected list of SCC - " + expectedListOfSCC);
+		System.out.println("List of SCC to test- " + listOfSCCToTest);
+		boolean result = compareListOfGraphs(expectedListOfSCC, listOfSCCToTest);
+
+		if (result == false) {
+			assertFalse(true, "Generated list of SCC do not match expected list of SCC");
+		}
+	}
+
+	@Test
+	void testTransposeGraph() {
+		System.out.println("\nTEST - testTransposeGraph");
+		loadGraph(testGraph, "data/test_data_for_egonet.txt");
+		Graph expectedGraph;
+		Graph graphToTest;
+
+		//Initialize
+		expectedGraph = new CapGraph();
+		loadGraph(expectedGraph, "data/test_data_for_egonet_transpose.txt");
+		graphToTest = ((CapGraph) testGraph).getTransposedGraph();
+
+		System.out.println("Expected graph - " + expectedGraph);
+		System.out.println("Graph to test - " + graphToTest);
+		assertEquals(expectedGraph, graphToTest);
+	}
+
+	private boolean compareListOfGraphs(List<Graph> firstList, List<Graph> secondList) {
+		if (firstList.size() != secondList.size()) {
+			return false;
+		}
+		for (Graph graph: firstList) {
+			if (!secondList.contains(graph))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }
