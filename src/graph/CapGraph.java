@@ -8,9 +8,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
+
 import graph.Graph;
 /**
- * @author Anurag.
+ * @author narayan.
  * 
  * For the warm up assignment, you must implement your Graph in a class
  * named CapGraph.  Here is the stub file.
@@ -86,7 +88,6 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public List<Graph> getSCCs() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -104,15 +105,9 @@ public class CapGraph implements Graph {
 	}
 
 	public String toString() {
-		String s = "Adjacency list representation\n";
-		s += "Number of vertices - " + graphAdjList.size();
-
-		for (int vertex : graphAdjList.keySet()) {
-			s += "\n\t"+vertex+": ";
-			for (int edge : graphAdjList.get(vertex)) {
-				s += edge+", ";
-			}
-		}
+		String s= "";
+		s += "\n  (Vertices - " + graphAdjList.size();
+		s += ", Graph - " + exportGraph() + ")";
 		return s;
 	}
 
@@ -122,5 +117,54 @@ public class CapGraph implements Graph {
 
 	public int getNumEdges() {
 		return numEdges;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+		if (other == null)
+			return false;
+		if (getClass() != other.getClass())
+			return false;
+
+		final HashMap<Integer, HashSet<Integer>> thisGraph = exportGraph();
+		final HashMap<Integer, HashSet<Integer>> otherGraph = ((CapGraph) other).exportGraph();
+
+		return doGraphsMatch(thisGraph, otherGraph);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 1;
+		HashMap<Integer, HashSet<Integer>> thisGraph = exportGraph();
+		for (Map.Entry<Integer, HashSet<Integer>> entry : thisGraph.entrySet()) {
+			Integer node = entry.getKey();
+			result = 31 * result + node.hashCode();
+			HashSet<Integer> neighbors = entry.getValue();
+			for (Integer neighbor: neighbors) {
+				result = 31 * result + neighbor.hashCode();
+			}
+		}
+		return result;
+	}
+
+	public static boolean doGraphsMatch(HashMap<Integer, HashSet<Integer>> first,
+			HashMap<Integer, HashSet<Integer>> second) {
+		// Verify size
+		if (first.size() != second.size()) {
+			return false;
+		}
+
+		for (Map.Entry<Integer, HashSet<Integer>> entry : first.entrySet()) {
+			Integer node = entry.getKey();
+			HashSet<Integer> neighbors = entry.getValue();
+			// Verify that every node and every edge matches
+			if (!second.containsKey(node) ||
+					!second.get(node).equals(neighbors)){
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -80,28 +79,9 @@ class CapGraphTest {
 		System.out.println("Egonet under test - " + egonetToTest);
 
 		// Compare expected and received ego net
-		boolean result = doGraphsMatch(egonetToTest, expectedEgonet);
+		boolean result = CapGraph.doGraphsMatch(egonetToTest, expectedEgonet);
 		if (result == false) {
 			assertFalse(true, "Generated egonet does not match expected ego net");
 		}
-	}
-
-	private boolean doGraphsMatch(HashMap<Integer, HashSet<Integer>> first,
-			HashMap<Integer, HashSet<Integer>> second) {
-		// Verify size
-		if (first.size() != second.size()) {
-			return false;
-		}
-
-		for (Map.Entry<Integer, HashSet<Integer>> entry : first.entrySet()) {
-			Integer node = entry.getKey();
-			HashSet<Integer> neighbors = entry.getValue();
-			// Verify that every node and every edge matches
-			if (!second.containsKey(node) ||
-					!second.get(node).equals(neighbors)){
-				return false;
-			}
-		}
-		return true;
 	}
 }
