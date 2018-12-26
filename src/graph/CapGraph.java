@@ -109,7 +109,7 @@ public class CapGraph implements Graph {
 
 		// Step 1 - Run DFS on G and store the order of traversal
 		Stack<Integer> initialDFS = DFS(getGraphVertices(), this, listOfStackOfNodesInSCCs);
-		System.out.println("Initial DFS - " + initialDFS);
+		//System.out.println("Initial DFS - " + initialDFS);
 
 		// Step 2 - Get G` (transpose of G)
 		Graph transposedGraph = getTransposedGraph();
@@ -121,14 +121,14 @@ public class CapGraph implements Graph {
 		// Post processing
 		listOfSCCs = constructSCCsfromNodes(listOfStackOfNodesInSCCs);
 
-		System.out.println("List of list of nodes in SCC - " + listOfStackOfNodesInSCCs);
-		System.out.println("List of SCCs - " + listOfSCCs);
+		//System.out.println("List of list of nodes in SCC - " + listOfStackOfNodesInSCCs);
+		//System.out.println("List of SCCs - " + listOfSCCs);
 		return listOfSCCs;
 	}
 
 	public Stack<Integer> DFS(Stack<Integer> vertices, Graph graph, List<Stack<Integer>> listOfListOfNodesInSCCs) {
-		System.out.println("\n\nRunning DFS on - " + graph);
-		System.out.println("  Vertices to visit - " + vertices);
+		//System.out.println("\n\nRunning DFS on - " + graph);
+		//System.out.println("  Vertices to visit - " + vertices);
 
 		HashSet<Integer> visited = new HashSet<Integer>();
 		Stack<Integer> finished = new Stack<Integer>();
@@ -141,8 +141,8 @@ public class CapGraph implements Graph {
 				DFSVisit(vertex, visited, finished, graph, exploredVerticesInThisRun);
 				listOfListOfNodesInSCCs.add(exploredVerticesInThisRun);
 
-				System.out.println("Finished - " + finished);
-				System.out.println("Explored vertices - " + exploredVerticesInThisRun);
+				//System.out.println("Finished - " + finished);
+				//System.out.println("Explored vertices - " + exploredVerticesInThisRun);
 			}
 		}
 		return finished;
@@ -153,9 +153,9 @@ public class CapGraph implements Graph {
 		visited.add(vertex);
 		HashSet<Integer> neighbors = graph.exportGraph().get(vertex);
 
-		System.out.println("\nVisiting - " + vertex);
-		System.out.println("Neighbors of " + vertex + " - " + neighbors);
-		System.out.println("Visited - " + visited);
+		//System.out.println("\nVisiting - " + vertex);
+		//System.out.println("Neighbors of " + vertex + " - " + neighbors);
+		//System.out.println("Visited - " + visited);
 
 		for (Integer neighbor : neighbors) {
 			if (!visited.contains(neighbor)) {
@@ -165,10 +165,10 @@ public class CapGraph implements Graph {
 		}
 		finished.add(vertex);
 		exploredVerticesInThisRun.push(vertex);
-		System.out.println("Done with " + vertex + " - no more unvisited neighbors");
-		System.out.println("Adding to finished and exploredVerticesInThisRun- " + vertex);
-		System.out.println("Finished - " + finished);
-		System.out.println("Explored vertices in this run - " + exploredVerticesInThisRun);
+		//System.out.println("Done with " + vertex + " - no more unvisited neighbors");
+		//System.out.println("Adding to finished and exploredVerticesInThisRun- " + vertex);
+		//System.out.println("Finished - " + finished);
+		//System.out.println("Explored vertices in this run - " + exploredVerticesInThisRun);
 	}
 
 	private List<Graph> constructSCCsfromNodes(List<Stack<Integer>> listOfStackOfNodesInSCCs) {
