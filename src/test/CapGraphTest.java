@@ -17,7 +17,7 @@ import graph.Graph;
 import util.GraphLoader;
 
 class CapGraphTest {
-	private static  Graph testGraph;
+	private static Graph testGraph;
 
 	@BeforeEach
 	void setUpBeforeClass() throws Exception {
@@ -46,7 +46,7 @@ class CapGraphTest {
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for edges connected to 8
 		Integer nodeToTest = 8;
-		Set<Integer> expectedEdges = new HashSet<Integer>(Arrays.asList(7,9,12));
+		Set<Integer> expectedEdges = new HashSet<Integer>(Arrays.asList(7, 9, 12));
 		assertEquals(expectedEdges, testGraph.exportGraph().get(nodeToTest));
 	}
 
@@ -88,7 +88,6 @@ class CapGraphTest {
 		}
 	}
 
-
 	@Test
 	void testDfs() {
 		// Test on a even smaller dataset
@@ -103,12 +102,12 @@ class CapGraphTest {
 
 		expectedStack = new Stack<Integer>();
 		ArrayList<Integer> testData = new ArrayList<Integer>(Arrays.asList(50, 44, 18, 23, 65, 25, 32));
-		for (Integer vertex: testData) {
+		for (Integer vertex : testData) {
 			expectedStack.push(vertex);
 		}
 
 		Stack<Integer> vertices = new Stack<Integer>();
-		for (Integer vertex: testGraphForDfs.exportGraph().keySet()){
+		for (Integer vertex : testGraphForDfs.exportGraph().keySet()) {
 			vertices.push(vertex);
 		}
 		stackToTest = testGraphForDfs.DFS(vertices, testGraphForDfs, new ArrayList<Stack<Integer>>());
@@ -135,13 +134,13 @@ class CapGraphTest {
 		fourthSCC.addVertex(65);
 		fourthSCC.addVertex(23);
 		fourthSCC.addVertex(18);
-		fourthSCC.addEdge(25,  23);
-		fourthSCC.addEdge(25,  65);
-		fourthSCC.addEdge(25,  18);
-		fourthSCC.addEdge(65,  23);
-		fourthSCC.addEdge(18,  23);
-		fourthSCC.addEdge(23,  25);
-		fourthSCC.addEdge(23,  18);
+		fourthSCC.addEdge(25, 23);
+		fourthSCC.addEdge(25, 65);
+		fourthSCC.addEdge(25, 18);
+		fourthSCC.addEdge(65, 23);
+		fourthSCC.addEdge(18, 23);
+		fourthSCC.addEdge(23, 25);
+		fourthSCC.addEdge(23, 18);
 		expectedListOfSCC.add(firstSCC);
 		expectedListOfSCC.add(secondSCC);
 		expectedListOfSCC.add(thirdSCC);
@@ -164,7 +163,7 @@ class CapGraphTest {
 		Graph expectedGraph;
 		Graph graphToTest;
 
-		//Initialize
+		// Initialize
 		expectedGraph = new CapGraph();
 		loadGraph(expectedGraph, "data/test_data_for_egonet_transpose.txt");
 		graphToTest = ((CapGraph) testGraph).getTransposedGraph();
@@ -178,9 +177,8 @@ class CapGraphTest {
 		if (firstList.size() != secondList.size()) {
 			return false;
 		}
-		for (Graph graph: firstList) {
-			if (!secondList.contains(graph))
-			{
+		for (Graph graph : firstList) {
+			if (!secondList.contains(graph)) {
 				return false;
 			}
 		}

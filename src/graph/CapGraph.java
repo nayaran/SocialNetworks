@@ -11,16 +11,17 @@ import java.util.Map;
 import java.util.Stack;
 
 import graph.Graph;
+
 /**
  * @author narayan.
  * 
- * For the warm up assignment, you must implement your Graph in a class
- * named CapGraph.  Here is the stub file.
+ *         For the warm up assignment, you must implement your Graph in a class
+ *         named CapGraph. Here is the stub file.
  *
  */
 public class CapGraph implements Graph {
 
-	private Map<Integer,ArrayList<Integer>> graphAdjList;
+	private Map<Integer, ArrayList<Integer>> graphAdjList;
 	private int numVertices;
 	private int numEdges;
 
@@ -30,7 +31,9 @@ public class CapGraph implements Graph {
 		numEdges = 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see graph.Graph#addVertex(int)
 	 */
 	@Override
@@ -38,12 +41,14 @@ public class CapGraph implements Graph {
 		// TODO Auto-generated method stub
 		if (!graphAdjList.containsKey(num)) {
 			ArrayList<Integer> neighbors = new ArrayList<Integer>();
-			graphAdjList.put(num,  neighbors);
+			graphAdjList.put(num, neighbors);
 			numVertices++;
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see graph.Graph#addEdge(int, int)
 	 */
 	@Override
@@ -53,7 +58,9 @@ public class CapGraph implements Graph {
 		numEdges++;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see graph.Graph#getEgonet(int)
 	 */
 	@Override
@@ -66,7 +73,7 @@ public class CapGraph implements Graph {
 
 		// Populate egonet for node
 		egonet.addVertex(node);
-		for (Integer neighbor:neighbors) {
+		for (Integer neighbor : neighbors) {
 			// Add neighbors
 			egonet.addVertex(neighbor);
 			egonet.addEdge(node, neighbor);
@@ -74,7 +81,7 @@ public class CapGraph implements Graph {
 
 			// Populate other eligible edges
 			// Add only those neighbors of the neighbor who are nodes' neighbors
-			for (Integer neighborOfNeighor: graphAdjList.get(neighbor)) {
+			for (Integer neighborOfNeighor : graphAdjList.get(neighbor)) {
 				if (neighbors.contains(neighborOfNeighor)) {
 					egonet.addEdge(neighbor, neighborOfNeighor);
 				}
@@ -83,18 +90,18 @@ public class CapGraph implements Graph {
 		return egonet;
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see graph.Graph#getSCCs()
 	 */
 	@Override
 	public List<Graph> getSCCs() {
 		/*
-		 Core Algorithm
-		 Step 1 - Run DFS on G and store the order of traversal
-		 Step 2 - Get G` (transpose of G)
-		 Step 3 - Run DFS in reverse order of traversal in Step 1
-		*/
+		 * Core Algorithm Step 1 - Run DFS on G and store the order of traversal Step 2
+		 * - Get G` (transpose of G) Step 3 - Run DFS in reverse order of traversal in
+		 * Step 1
+		 */
 
 		// Initialize
 		List<Graph> listOfSCCs = new ArrayList<Graph>();
@@ -126,7 +133,7 @@ public class CapGraph implements Graph {
 		HashSet<Integer> visited = new HashSet<Integer>();
 		Stack<Integer> finished = new Stack<Integer>();
 
-		while(!vertices.isEmpty()) {
+		while (!vertices.isEmpty()) {
 			Integer vertex = vertices.pop();
 
 			if (!visited.contains(vertex)) {
@@ -141,8 +148,8 @@ public class CapGraph implements Graph {
 		return finished;
 	}
 
-	public void DFSVisit(Integer vertex, HashSet<Integer> visited, Stack<Integer> finished,
-			Graph graph, Stack<Integer> exploredVerticesInThisRun) {
+	public void DFSVisit(Integer vertex, HashSet<Integer> visited, Stack<Integer> finished, Graph graph,
+			Stack<Integer> exploredVerticesInThisRun) {
 		visited.add(vertex);
 		HashSet<Integer> neighbors = graph.exportGraph().get(vertex);
 
@@ -150,7 +157,7 @@ public class CapGraph implements Graph {
 		System.out.println("Neighbors of " + vertex + " - " + neighbors);
 		System.out.println("Visited - " + visited);
 
-		for (Integer neighbor: neighbors) {
+		for (Integer neighbor : neighbors) {
 			if (!visited.contains(neighbor)) {
 				visited.add(neighbor);
 				DFSVisit(neighbor, visited, finished, graph, exploredVerticesInThisRun);
@@ -166,7 +173,7 @@ public class CapGraph implements Graph {
 
 	private List<Graph> constructSCCsfromNodes(List<Stack<Integer>> listOfStackOfNodesInSCCs) {
 		List<Graph> listOfSCCs = new ArrayList<Graph>();
-		for (Stack<Integer> stackOfNodes: listOfStackOfNodesInSCCs) {
+		for (Stack<Integer> stackOfNodes : listOfStackOfNodesInSCCs) {
 			listOfSCCs.add(constructGraphFromStackOfNodes(stackOfNodes));
 		}
 		return listOfSCCs;
@@ -175,12 +182,12 @@ public class CapGraph implements Graph {
 	private Graph constructGraphFromStackOfNodes(Stack<Integer> stackOfNodes) {
 		Graph graph = new CapGraph();
 		ArrayList<Integer> listOfNodes = new ArrayList<Integer>(stackOfNodes);
-		while(!stackOfNodes.isEmpty()) {
+		while (!stackOfNodes.isEmpty()) {
 			Integer node = stackOfNodes.pop();
 			graph.addVertex(node);
-			for(Integer neighbor:graphAdjList.get(node)) {
+			for (Integer neighbor : graphAdjList.get(node)) {
 				if (listOfNodes.contains(neighbor)) {
-					graph.addEdge(node,  neighbor);
+					graph.addEdge(node, neighbor);
 				}
 			}
 		}
@@ -193,7 +200,7 @@ public class CapGraph implements Graph {
 		for (Map.Entry<Integer, ArrayList<Integer>> entry : graphAdjList.entrySet()) {
 			Integer node = entry.getKey();
 			graph.addVertex(node);
-			for (Integer neighbor: entry.getValue()) {
+			for (Integer neighbor : entry.getValue()) {
 				graph.addVertex(neighbor);
 				graph.addEdge(neighbor, node);
 			}
@@ -203,19 +210,21 @@ public class CapGraph implements Graph {
 
 	private Stack<Integer> getGraphVertices() {
 		Stack<Integer> vertices = new Stack<Integer>();
-		for (Integer vertex: graphAdjList.keySet()){
+		for (Integer vertex : graphAdjList.keySet()) {
 			vertices.push(vertex);
 		}
 		return vertices;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see graph.Graph#exportGraph()
 	 */
 	@Override
 	public HashMap<Integer, HashSet<Integer>> exportGraph() {
 		// TODO Auto-generated method stub
-		HashMap<Integer, HashSet<Integer>> graph = new  HashMap<Integer, HashSet<Integer>>();
+		HashMap<Integer, HashSet<Integer>> graph = new HashMap<Integer, HashSet<Integer>>();
 		for (Map.Entry<Integer, ArrayList<Integer>> entry : graphAdjList.entrySet()) {
 			graph.put(entry.getKey(), new HashSet<Integer>(entry.getValue()));
 		}
@@ -223,7 +232,7 @@ public class CapGraph implements Graph {
 	}
 
 	public String toString() {
-		String s= "";
+		String s = "";
 		s += "\n  (Vertices - " + graphAdjList.size();
 		s += ", Graph - " + exportGraph() + ")";
 		return s;
@@ -260,7 +269,7 @@ public class CapGraph implements Graph {
 			Integer node = entry.getKey();
 			result = 31 * result + node.hashCode();
 			HashSet<Integer> neighbors = entry.getValue();
-			for (Integer neighbor: neighbors) {
+			for (Integer neighbor : neighbors) {
 				result = 31 * result + neighbor.hashCode();
 			}
 		}
@@ -278,8 +287,7 @@ public class CapGraph implements Graph {
 			Integer node = entry.getKey();
 			HashSet<Integer> neighbors = entry.getValue();
 			// Verify that every node and every edge matches
-			if (!second.containsKey(node) ||
-					!second.get(node).equals(neighbors)){
+			if (!second.containsKey(node) || !second.get(node).equals(neighbors)) {
 				return false;
 			}
 		}
