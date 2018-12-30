@@ -127,7 +127,6 @@ public class SocialNetworkGraphTest {
 
 		assertFalse(neighborsOfFirstEnd.contains(secondEnd.getItem()));
 		assertFalse(neighborsOfSecondEnd.contains(firstEnd.getItem()));
-
 	}
 
 	@Test
@@ -148,22 +147,93 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testAssignWeights() {
-		System.out.println("\nTEST - testAssignWeights");
+	void testUpdateDistanceAndWeights() {
+		System.out.println("\nTEST - testUpdateDistanceAndWeights");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
-		testGraph.addVertex(1, "A", 0, 1);
-		testGraph.addVertex(3, "E", 1, 1);
-		testGraph.addVertex(2, "B", 1, 1);
-		testGraph.addVertex(4, "G", 2, 1);
-		testGraph.addVertex(5, "D", 3, 3);
-		testGraph.addVertex(6, "F", 2, 2);
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(3, "E");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(4, "G");
+		testGraph.addVertex(5, "D");
+		testGraph.addVertex(6, "F");
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(2, 6);
+		testGraph.addEdge(3, 6);
+		testGraph.addEdge(6, 5);
+		testGraph.addEdge(4, 5);
+
+		System.out.println("testGraph before updateDistanceAndWeights() - " + testGraph);
+
+		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
+		expectedGraph.addVertex(1, "A", 0, 1);
+		expectedGraph.addVertex(3, "E", 1, 1);
+		expectedGraph.addVertex(2, "B", 1, 1);
+		expectedGraph.addVertex(4, "G", 2, 1);
+		expectedGraph.addVertex(5, "D", 3, 3);
+		expectedGraph.addVertex(6, "F", 2, 2);
+		expectedGraph.addEdge(1, 2);
+		expectedGraph.addEdge(1, 3);
+		expectedGraph.addEdge(2, 4);
+		expectedGraph.addEdge(2, 6);
+		expectedGraph.addEdge(3, 6);
+		expectedGraph.addEdge(6, 5);
+		expectedGraph.addEdge(4, 5);
+
+		testGraph.updateDistanceAndWeights();
+
+		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
+		System.out.println("expectedGraph - " + expectedGraph);
+
+		assertEquals(expectedGraph, testGraph);
+	}
+
+	@Test
+	void testUpdateDistanceAndWeightsTest2() {
+		System.out.println("\nTEST - testUpdateDistanceAndWeightsTest2");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "C");
+		testGraph.addVertex(4, "D");
+		testGraph.addVertex(5, "E");
+		testGraph.addVertex(6, "F");
+		testGraph.addVertex(7, "G");
 
 		testGraph.addEdge(1, 2);
 		testGraph.addEdge(1, 3);
 		testGraph.addEdge(2, 4);
-		testGraph.addEdge(3, 6);
-		testGraph.addEdge(6, 5);
-		testGraph.addEdge(4, 5);
-		System.out.println(testGraph);
+		testGraph.addEdge(3, 4);
+		testGraph.addEdge(3, 5);
+		testGraph.addEdge(4, 6);
+		testGraph.addEdge(5, 6);
+		testGraph.addEdge(5, 7);
+
+		System.out.println("testGraph before updateDistanceAndWeights() - " + testGraph);
+
+		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
+		expectedGraph.addVertex(1, "A", 0, 1);
+		expectedGraph.addVertex(2, "B", 1, 1);
+		expectedGraph.addVertex(3, "C", 1, 1);
+		expectedGraph.addVertex(4, "D", 2, 2);
+		expectedGraph.addVertex(5, "E", 2, 1);
+		expectedGraph.addVertex(6, "F", 3, 3);
+		expectedGraph.addVertex(7, "G", 3, 1);
+		expectedGraph.addEdge(1, 2);
+		expectedGraph.addEdge(1, 3);
+		expectedGraph.addEdge(2, 4);
+		expectedGraph.addEdge(3, 4);
+		expectedGraph.addEdge(3, 5);
+		expectedGraph.addEdge(4, 6);
+		expectedGraph.addEdge(5, 6);
+		expectedGraph.addEdge(5, 7);
+
+		testGraph.updateDistanceAndWeights();
+
+		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
+		System.out.println("expectedGraph - " + expectedGraph);
+
+		assertEquals(expectedGraph, testGraph);
 	}
 }

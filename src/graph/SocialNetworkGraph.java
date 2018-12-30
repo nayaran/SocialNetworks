@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
 public class SocialNetworkGraph implements Graph {
 
@@ -299,10 +300,7 @@ public class SocialNetworkGraph implements Graph {
 		if (getClass() != other.getClass())
 			return false;
 
-		final HashMap<Integer, HashSet<Integer>> thisGraph = exportGraph();
-		final HashMap<Integer, HashSet<Integer>> otherGraph = ((CapGraph) other).exportGraph();
-
-		return doGraphsMatch(thisGraph, otherGraph);
+		return doGraphsMatch(this, (SocialNetworkGraph) other);
 	}
 
 	@Override
@@ -320,11 +318,6 @@ public class SocialNetworkGraph implements Graph {
 		return result;
 	}
 
-	public HashSet<SocialNetworkNode> getNodes() {
-		// TODO Auto-generated method stub
-		return (HashSet) graph.values();
-	}
-
 	@Override
 	public Graph getEgonet(int center) {
 		// TODO Auto-generated method stub
@@ -337,21 +330,182 @@ public class SocialNetworkGraph implements Graph {
 		return null;
 	}
 
-	public static boolean doGraphsMatch(HashMap<Integer, HashSet<Integer>> first,
-			HashMap<Integer, HashSet<Integer>> second) {
-		// Verify size
-		if (first.size() != second.size()) {
-			return false;
-		}
+	Map<Integer, SocialNetworkNode> getGraph() {
+		return graph;
+	}
 
-		for (Map.Entry<Integer, HashSet<Integer>> entry : first.entrySet()) {
-			Integer node = entry.getKey();
-			HashSet<Integer> neighbors = entry.getValue();
-			// Verify that every node and every edge matches
-			if (!second.containsKey(node) || !second.get(node).equals(neighbors)) {
+	public static boolean doGraphsMatch(SocialNetworkGraph g1, SocialNetworkGraph g2) {
+		Map<Integer, SocialNetworkNode> graphA = g1.getGraph();
+		Map<Integer, SocialNetworkNode> graphB = g2.getGraph();
+
+		if (graphA.size() != graphB.size())
+			return false;
+
+		for (Map.Entry<Integer, SocialNetworkNode> entry : graphA.entrySet()) {
+			Integer nodeItemOfA = entry.getKey();
+			SocialNetworkNode nodeOfA = entry.getValue();
+			SocialNetworkNode correspondingNodeOfB = graphB.get(nodeItemOfA);
+			if (!nodeOfA.isExactlyEqual(correspondingNodeOfB))
 				return false;
-			}
 		}
 		return true;
+	}
+
+	public void updateDistanceAndWeights() {
+		System.out.println("\nRunning updateDistanceAndWeightsViaBFS......\n");
+
+		ArrayList<SocialNetworkNode> allNodes = new ArrayList<SocialNetworkNode>(graph.values());
+		SocialNetworkNode nodeS = allNodes.get(0);
+
+		// Step I
+		updateStartingNode(nodeS);
+
+		// Step II
+		updateNodesAdjacentToStartingNode(nodeS);
+
+		// Step III
+		updateRemainingNodes(nodeS);
+	}
+
+	private void updateStartingNode(SocialNetworkNode nodeS) {
+		// Step I
+		// Initial vertex s is given a distance
+		// Ds = 0
+		// Ws = 1
+
+		System.out.println("Beginning with start node, nodeS - " + nodeS);
+
+		Integer newDistance = 0;
+		Integer newWeight = 1;
+		nodeS.setDistance(0);
+		nodeS.setWeight(1);
+
+		System.out.println("\tUpdated distance - " + newDistance);
+		System.out.println("\tUpdated  weight - " + newWeight);
+		System.out.println("\tNode after updation -" + nodeS);
+
+	}
+
+	private void updateNodesAdjacentToStartingNode(SocialNetworkNode nodeS) {
+		// Every vertex adjacent to starting node is given
+		// Di = Ds + 1 = 1
+		// Wi = Ws = 1
+
+		System.out.println("nodeS neighbors - " + nodeS.getNeighbors());
+
+		Integer newDistance;
+		Integer newWeight;
+
+		for (SocialNetworkNode nodeI : nodeS.getNeighbors()) {
+			System.out.println("\nnodeI - " + nodeI);
+			System.out.println("\tNode is adjacent to start node - " + nodeI);
+
+			newDistance = nodeS.getDistance() + 1;
+			newWeight = nodeS.getWeight();
+			nodeI.setDistance(newDistance);
+			nodeI.setWeight(newWeight);
+
+			System.out.println("\tUpdated distance - " + newDistance);
+			System.out.println("\tUpdated  weight - " + newWeight);
+			System.out.println("\tNode after updation -" + nodeI);
+		}
+	}
+
+	private void updateRemainingNodes(SocialNetworkNode nodeS) {
+		// USE BFS for exploring and updating rest of the nodes in the graph
+		// Core updation algo in updateDistanceAndWeight
+
+		Queue<SocialNetworkNode> toExplore = new LinkedList<SocialNetworkNode>();
+		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
+		Map<SocialNetworkNode, SocialNetworkNode> parentMap = new HashMap<SocialNetworkNode, SocialNetworkNode>();
+
+		toExplore.addAll(nodeS.getNeighbors());
+		visited.add(nodeS);
+		visited.addAll(nodeS.getNeighbors());
+
+		System.out.println("\nStarting BFS exploration");
+
+		while (!toExplore.isEmpty()) {
+			System.out.println("\ntoExplore - " + toExplore);
+			SocialNetworkNode currentNode = toExplore.remove();
+			System.out.println("currentNode - " + currentNode);
+
+			Set<SocialNetworkNode> neighbors = currentNode.getNeighbors();
+			System.out.println("Visited - " + visited);
+			System.out.println("Visiting neighbors - " + neighbors);
+
+			for (SocialNetworkNode neighbor : neighbors) {
+				System.out.println("\tAt neighbor - " + neighbor);
+
+				updateDistanceAndWeightForRemainingNodes(currentNode, neighbor);
+
+				if (!visited.contains(neighbor)) {
+					parentMap.put(neighbor, currentNode);
+					visited.add(neighbor);
+					toExplore.add(neighbor);
+				} else {
+					System.out.println("\tNeighbor already visited - " + neighbor);
+				}
+			}
+		}
+	}
+
+	private void updateDistanceAndWeightForRemainingNodes(SocialNetworkNode nodeI, SocialNetworkNode nodeJ) {
+		// For each vertex j adjacent to i
+		// if j has not been assigned
+		// Dj = Di + 1
+		// Wj = Wi
+		// else
+		// if Dj = Di + 1
+		// Wj = Wj + Wi
+		Integer newDistance;
+		Integer newWeight;
+
+		System.out.println("\tupdateDistanceAndWeight...");
+		System.out.println("\tnodeI - " + nodeI);
+		System.out.println("\tnodeJ - " + nodeJ);
+
+		if (nodeJ.getDistance() == null) {
+			newDistance = nodeI.getDistance() + 1;
+			newWeight = nodeI.getWeight();
+
+			nodeJ.setDistance(newDistance);
+			nodeJ.setWeight(newWeight);
+
+			System.out.println("\t\t\tCase (a) - distance not assigned yet");
+			System.out.println("\t\t\tUpdated distance - " + newDistance);
+			System.out.println("\t\t\tUpdated  weight - " + newWeight);
+			System.out.println("\t\t\tnodeJ after updation - " + nodeJ);
+
+		} else {
+			if (nodeJ.getDistance() == nodeI.getDistance() + 1) {
+				newWeight = nodeJ.getWeight() + nodeI.getWeight();
+				nodeJ.setWeight(newWeight);
+
+				System.out.println("\t\t\tCase (b) - distance assigned and dj = di+1 ");
+				System.out.println("\t\t\tUpdated weight - " + newWeight);
+				System.out.println("\t\t\tnodeJ after updation - " + nodeJ);
+			}
+			if (nodeJ.getDistance() < (nodeI.getDistance() + 1)) {
+				System.out.println("\t\t\tCase (c) - distance assigned and dj < di + 1");
+				System.out.println("\t\t\tSkipping");
+			}
+		}
+	}
+
+	private boolean moreNodesToProcess() {
+		System.out.println("\nChecking if there are any nodes left to process");
+		for (SocialNetworkNode node : graph.values()) {
+			if (node.getDistance() != null) {
+				for (SocialNetworkNode neighbor : node.getNeighbors()) {
+					if (neighbor.getDistance() == null) {
+						System.out.println(neighbor + " 's neighbor's distance yet to be updated - " + neighbor);
+						return true;
+					}
+				}
+			}
+		}
+		System.out.println("All nodes updated!");
+		return false;
 	}
 }

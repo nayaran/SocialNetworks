@@ -122,6 +122,51 @@ public class SocialNetworkNode {
 		return true;
 	}
 
+	public boolean isExactlyEqual(Object other) {
+		if (other == null)
+			return false;
+		if (getClass() != other.getClass())
+			return false;
+		if (this == other)
+			return true;
+
+		SocialNetworkNode otherNode = (SocialNetworkNode) other;
+
+		// compare all fields
+		if (!otherNode.getItem().equals(item))
+			return false;
+
+		if (otherNode.getDistance() == null && distance != null)
+			return false;
+		if (distance == null && otherNode.getDistance() != null)
+			return false;
+		if (otherNode.getDistance() != null && distance != null) {
+			if (!otherNode.getDistance().equals(distance))
+				return false;
+		}
+
+		if (otherNode.getWeight() == null && weight != null)
+			return false;
+		if (weight == null && otherNode.getWeight() != null)
+			return false;
+		if (otherNode.getWeight() != null && weight != null) {
+			if (!otherNode.getWeight().equals(weight))
+				return false;
+		}
+
+		// compare neighbors
+		Set<SocialNetworkNode> neighborsOfOtherNode = otherNode.getNeighbors();
+		if (neighbors.size() != neighborsOfOtherNode.size())
+			return false;
+
+		for (SocialNetworkNode neighbor : neighbors) {
+			if (!neighborsOfOtherNode.contains(neighbor))
+				return false;
+		}
+
+		return true;
+	}
+
 	@Override
 	public int hashCode() {
 		int result = 1;
