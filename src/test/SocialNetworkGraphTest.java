@@ -1,6 +1,5 @@
 package test;
 
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -153,13 +152,17 @@ public class SocialNetworkGraphTest {
 		SocialNetworkEdge edge1 = new SocialNetworkEdge(2, 3, 2.0f);
 		SocialNetworkEdge edge2 = new SocialNetworkEdge(2, 3);
 		SocialNetworkEdge edge3 = new SocialNetworkEdge(2, 3);
-		SocialNetworkEdge edge4 = new SocialNetworkEdge(2, 3, 2.0f);
+		SocialNetworkEdge edge4 = new SocialNetworkEdge(3, 2);
+		SocialNetworkEdge edge5 = new SocialNetworkEdge(2, 3, 2.0f);
 
-		assertEquals(edge1, edge4);
+		assertEquals(edge1, edge5);
 		assertEquals(edge2, edge3);
 
 		assertEquals(edge1, edge3);
 		assertFalse(edge1.isExactlyEqual(edge3));
+
+		assertEquals(edge2, edge4);
+		assertEquals(edge2.hashCode(), edge4.hashCode());
 	}
 
 	@Test

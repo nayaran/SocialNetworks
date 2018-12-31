@@ -114,11 +114,7 @@ public class SocialNetworkEdge {
 
 	@Override
 	public int hashCode() {
-		int result = 1;
-		result = 31 * result + firstEnd.hashCode();
-		result = 31 * result + secondEnd.hashCode();
-
-		return result;
+		return firstEnd.hashCode() + secondEnd.hashCode();
 	}
 
 	@Override
