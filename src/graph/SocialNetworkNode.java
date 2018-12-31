@@ -1,5 +1,7 @@
 package graph;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,6 +11,7 @@ public class SocialNetworkNode {
 	private Integer weight;
 	private String label;
 	private Set<SocialNetworkNode> neighbors;
+	private HashMap<SocialNetworkNode, SocialNetworkEdge> neighborToEdgeMap;
 	private final boolean SHOW_LABEL = true;
 
 	public SocialNetworkNode(Integer item) {
@@ -17,6 +20,7 @@ public class SocialNetworkNode {
 		this.weight = null;
 		this.label = null;
 		this.neighbors = new HashSet<SocialNetworkNode>();
+		this.neighborToEdgeMap = new HashMap<SocialNetworkNode, SocialNetworkEdge>();
 	}
 
 	public SocialNetworkNode(Integer item, String label) {
@@ -25,6 +29,7 @@ public class SocialNetworkNode {
 		this.weight = null;
 		this.label = label;
 		this.neighbors = new HashSet<SocialNetworkNode>();
+		this.neighborToEdgeMap = new HashMap<SocialNetworkNode, SocialNetworkEdge>();
 	}
 
 	public SocialNetworkNode(Integer item, String label, Integer distance, Integer weight) {
@@ -33,10 +38,15 @@ public class SocialNetworkNode {
 		this.distance = distance;
 		this.weight = weight;
 		this.neighbors = new HashSet<SocialNetworkNode>();
+		this.neighborToEdgeMap = new HashMap<SocialNetworkNode, SocialNetworkEdge>();
 	}
 
 	public Set<SocialNetworkNode> getNeighbors() {
 		return neighbors;
+	}
+
+	public Collection<SocialNetworkEdge> getEdges() {
+		return neighborToEdgeMap.values();
 	}
 
 	public void addNeighbor(SocialNetworkNode node) {
@@ -45,6 +55,27 @@ public class SocialNetworkNode {
 			return;
 		}
 		neighbors.add(node);
+		if (neighborToEdgeMap.get(node) == null) {
+			neighborToEdgeMap.put(node, new SocialNetworkEdge(this, node));
+		}
+	}
+
+	public void addNeighbor(SocialNetworkNode node, float betweenness) {
+		if (neighbors.contains(node)) {
+			System.out.println("Neighbor already exists - " + node);
+			return;
+		}
+		neighbors.add(node);
+		if (neighborToEdgeMap.get(node) == null) {
+			neighborToEdgeMap.put(node, new SocialNetworkEdge(this, node, betweenness));
+		}
+	}
+
+	public SocialNetworkEdge getEdgeCorrespondingToNeighbor(SocialNetworkNode neighbor) {
+		if (!neighbors.contains(neighbor)) {
+			System.out.println("Neighbor doesn't exist - " + neighbor);
+		}
+		return neighborToEdgeMap.get(neighbor);
 	}
 
 	public void removeNeighbor(SocialNetworkNode neighbor) {
@@ -53,6 +84,7 @@ public class SocialNetworkNode {
 			return;
 		}
 		neighbors.remove(neighbor);
+		neighborToEdgeMap.remove(neighbor);
 	}
 
 	public String getLabel() {
@@ -89,6 +121,7 @@ public class SocialNetworkNode {
 
 	@Override
 	public boolean equals(Object other) {
+		// Basic checks
 		if (other == null)
 			return false;
 		if (getClass() != other.getClass())
@@ -96,33 +129,19 @@ public class SocialNetworkNode {
 		if (this == other)
 			return true;
 
+		// Check if both nodes have same item
 		SocialNetworkNode otherNode = (SocialNetworkNode) other;
-
-		// if(otherNode.getDistance() == null && distance != null)
-		// return false;
-		// if(distance == null && otherNode.getDistance() != null)
-		// return false;
-		// if (otherNode.getDistance() != null && distance != null) {
-		// if (!otherNode.getDistance().equals(distance))
-		// return false;
-		// }
-		//
-		// if(otherNode.getWeight() == null && weight != null)
-		// return false;
-		// if(weight == null && otherNode.getWeight() != null)
-		// return false;
-		// if (otherNode.getWeight() != null && weight != null) {
-		// if (!otherNode.getWeight().equals(weight))
-		// return false;
-		// }
-
 		if (!otherNode.getItem().equals(item))
 			return false;
+
+		// Note that for basic equality, we dont' look at other fields
+		// For deeper check, use isExactlyEqual
 
 		return true;
 	}
 
 	public boolean isExactlyEqual(Object other) {
+		// Basic checks
 		if (other == null)
 			return false;
 		if (getClass() != other.getClass())
@@ -132,10 +151,11 @@ public class SocialNetworkNode {
 
 		SocialNetworkNode otherNode = (SocialNetworkNode) other;
 
-		// compare all fields
+		// Compare item
 		if (!otherNode.getItem().equals(item))
 			return false;
 
+		// Compare distance
 		if (otherNode.getDistance() == null && distance != null)
 			return false;
 		if (distance == null && otherNode.getDistance() != null)
@@ -144,7 +164,7 @@ public class SocialNetworkNode {
 			if (!otherNode.getDistance().equals(distance))
 				return false;
 		}
-
+		// Compare weight
 		if (otherNode.getWeight() == null && weight != null)
 			return false;
 		if (weight == null && otherNode.getWeight() != null)
@@ -154,7 +174,7 @@ public class SocialNetworkNode {
 				return false;
 		}
 
-		// compare neighbors
+		// Compare neighbors
 		Set<SocialNetworkNode> neighborsOfOtherNode = otherNode.getNeighbors();
 		if (neighbors.size() != neighborsOfOtherNode.size())
 			return false;
@@ -163,7 +183,8 @@ public class SocialNetworkNode {
 			if (!neighborsOfOtherNode.contains(neighbor))
 				return false;
 		}
-
+		// TODO figure out how to implement comparison of edges
+		// without stackoverflow error
 		return true;
 	}
 

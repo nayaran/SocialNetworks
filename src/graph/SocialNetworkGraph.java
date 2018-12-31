@@ -16,13 +16,11 @@ public class SocialNetworkGraph implements Graph {
 	private Map<Integer, SocialNetworkNode> graph;
 	private int numVertices;
 	private int numEdges;
-	private Set<SocialNetworkEdge> edges;
 
 	public SocialNetworkGraph() {
 		graph = new HashMap<Integer, SocialNetworkNode>();
 		numVertices = 0;
 		numEdges = 0;
-		edges = new HashSet<SocialNetworkEdge>();
 	}
 
 	@Override
@@ -84,6 +82,21 @@ public class SocialNetworkGraph implements Graph {
 		addEdge(firstEnd, secondEnd);
 	}
 
+	public void addEdge(int from, int to, float betweenness) {
+		SocialNetworkNode firstEnd = graph.get(from);
+		SocialNetworkNode secondEnd = graph.get(to);
+
+		if (firstEnd == null) {
+			addVertex(from);
+			firstEnd = graph.get(from);
+		}
+		if (secondEnd == null) {
+			addVertex(to);
+			secondEnd = graph.get(to);
+		}
+		addEdge(firstEnd, secondEnd, betweenness);
+	}
+
 	public void addEdge(int from, String fromLabel, int to, String toLabel) {
 		SocialNetworkNode firstEnd = graph.get(from);
 		SocialNetworkNode secondEnd = graph.get(to);
@@ -99,20 +112,9 @@ public class SocialNetworkGraph implements Graph {
 		addEdge(firstEnd, secondEnd);
 	}
 
-	public void addEdge(SocialNetworkEdge edge) {
-		if (edges.contains(edge)) {
-			System.out.println("Edge already present - " + edge);
-			return;
-		}
-
-		SocialNetworkNode firstEnd = edge.getFirstEnd();
-		SocialNetworkNode secondEnd = edge.getSecondEnd();
-		addEdge(firstEnd, secondEnd);
-	}
-
-	public void addEdge(SocialNetworkNode firstEnd, SocialNetworkNode secondEnd) {
+	private void addEdge(SocialNetworkNode firstEnd, SocialNetworkNode secondEnd) {
 		if (firstEnd == null) {
-			System.out.println("First end is null. Can't add edge!");
+			System.out.println("First end is doesn't exist!");
 			return;
 		}
 		if (secondEnd == null) {
@@ -120,13 +122,33 @@ public class SocialNetworkGraph implements Graph {
 			return;
 		}
 		SocialNetworkEdge edge = new SocialNetworkEdge(firstEnd, secondEnd);
-		if (edges.contains(edge)) {
+
+		if (firstEnd.getEdges().contains(edge) && secondEnd.getEdges().contains(edge)) {
 			System.out.println("Edge already exists - " + edge);
 			return;
 		}
-		edges.add(edge);
 		firstEnd.addNeighbor(secondEnd);
 		secondEnd.addNeighbor(firstEnd);
+		numEdges++;
+	}
+
+	private void addEdge(SocialNetworkNode firstEnd, SocialNetworkNode secondEnd, float betweenness) {
+		if (firstEnd == null) {
+			System.out.println("First end is doesn't exist!");
+			return;
+		}
+		if (secondEnd == null) {
+			System.out.println("First end is null. Can't add edge!");
+			return;
+		}
+		SocialNetworkEdge edge = new SocialNetworkEdge(firstEnd, secondEnd, betweenness);
+
+		if (firstEnd.getEdges().contains(edge) && secondEnd.getEdges().contains(edge)) {
+			System.out.println("Edge already exists - " + edge);
+			return;
+		}
+		firstEnd.addNeighbor(secondEnd, betweenness);
+		secondEnd.addNeighbor(firstEnd, betweenness);
 		numEdges++;
 	}
 
@@ -208,23 +230,23 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public Set<SocialNetworkEdge> getEdges() {
+		Set<SocialNetworkEdge> edges = new HashSet<SocialNetworkEdge>();
+		for (SocialNetworkNode node : graph.values()) {
+			edges.addAll(node.getEdges());
+		}
 		return edges;
 	}
 
-	public void removeEdge(SocialNetworkEdge edgeToRemove) {
-		System.out.println("Removing edge - " + edgeToRemove);
-		if (!edges.contains(edgeToRemove)) {
-			System.out.println("Edge not found");
-			return;
-		}
-		SocialNetworkNode firstEnd = graph.get(edgeToRemove.getFirstEnd().getItem());
-		SocialNetworkNode secondEnd = graph.get(edgeToRemove.getSecondEnd().getItem());
-		if (firstEnd == null || secondEnd == null) {
-			System.out.println("Either one or both end of the edge are not present. Not deleting!");
-			return;
-		}
+	public void removeEdge(int from, int to) {
+		System.out.println("Removing edge between " + from + " and " + to);
 
-		edges.remove(edgeToRemove);
+		SocialNetworkNode firstEnd = graph.get(from);
+		SocialNetworkNode secondEnd = graph.get(to);
+
+		if (firstEnd == null || secondEnd == null) {
+			System.out.println("Invalid edge. Either first end or second end or both ends don't exist");
+			return;
+		}
 		firstEnd.removeNeighbor(secondEnd);
 		secondEnd.removeNeighbor(firstEnd);
 	}
@@ -267,7 +289,7 @@ public class SocialNetworkGraph implements Graph {
 	public String toString() {
 		String s = "";
 		s += "\n  # Vertices - " + graph.size();
-		s += "\n  # Edges - " + edges.size();
+		s += "\n  # Edges - " + getEdges().size();
 		s += "\n  Edges - " + getStringifiedEdgesList();
 		s += "\n  Nodes - " + graph.values();
 		s += "\n  Graph - " + getStringifiedGraph();
@@ -276,7 +298,7 @@ public class SocialNetworkGraph implements Graph {
 
 	public String getStringifiedEdgesList() {
 		String s = "{";
-		for (SocialNetworkEdge edge : edges) {
+		for (SocialNetworkEdge edge : getEdges()) {
 			s += edge + ", ";
 		}
 		s += "}";
@@ -330,11 +352,19 @@ public class SocialNetworkGraph implements Graph {
 		return null;
 	}
 
-	Map<Integer, SocialNetworkNode> getGraph() {
+	private Map<Integer, SocialNetworkNode> getGraph() {
 		return graph;
 	}
 
+	public SocialNetworkNode getNode(Integer num) {
+		SocialNetworkNode node = graph.get(num);
+		if (node == null)
+			System.out.println("Node doesnt exist for " + num);
+		return graph.get(num);
+	}
+
 	public static boolean doGraphsMatch(SocialNetworkGraph g1, SocialNetworkGraph g2) {
+		// Check nodes
 		Map<Integer, SocialNetworkNode> graphA = g1.getGraph();
 		Map<Integer, SocialNetworkNode> graphB = g2.getGraph();
 
@@ -351,20 +381,25 @@ public class SocialNetworkGraph implements Graph {
 		return true;
 	}
 
-	public void updateDistanceAndWeights() {
+	public void updateDistanceAndWeights(SocialNetworkNode nodeS) {
 		System.out.println("\nRunning updateDistanceAndWeightsViaBFS......\n");
 
-		ArrayList<SocialNetworkNode> allNodes = new ArrayList<SocialNetworkNode>(graph.values());
-		SocialNetworkNode nodeS = allNodes.get(0);
+		Map<SocialNetworkNode, SocialNetworkNode> parentMap = new HashMap<SocialNetworkNode, SocialNetworkNode>();
+		SocialNetworkNode lastNode;
+		ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
 
 		// Step I
 		updateStartingNode(nodeS);
 
 		// Step II
-		updateNodesAdjacentToStartingNode(nodeS);
+		updateNodesAdjacentToStartingNode(nodeS, parentMap);
 
 		// Step III
-		updateRemainingNodes(nodeS);
+		lastNode = updateRemainingNodes(nodeS, parentMap, leafNodes);
+
+		System.out.println("\nLast node - " + lastNode);
+		System.out.println("Parent map - " + parentMap);
+		System.out.println("Leaf nodes - " + leafNodes);
 	}
 
 	private void updateStartingNode(SocialNetworkNode nodeS) {
@@ -386,7 +421,8 @@ public class SocialNetworkGraph implements Graph {
 
 	}
 
-	private void updateNodesAdjacentToStartingNode(SocialNetworkNode nodeS) {
+	private void updateNodesAdjacentToStartingNode(SocialNetworkNode nodeS,
+			Map<SocialNetworkNode, SocialNetworkNode> parentMap) {
 		// Every vertex adjacent to starting node is given
 		// Di = Ds + 1 = 1
 		// Wi = Ws = 1
@@ -400,6 +436,8 @@ public class SocialNetworkGraph implements Graph {
 			System.out.println("\nnodeI - " + nodeI);
 			System.out.println("\tNode is adjacent to start node - " + nodeI);
 
+			parentMap.put(nodeI, nodeS);
+
 			newDistance = nodeS.getDistance() + 1;
 			newWeight = nodeS.getWeight();
 			nodeI.setDistance(newDistance);
@@ -411,33 +449,39 @@ public class SocialNetworkGraph implements Graph {
 		}
 	}
 
-	private void updateRemainingNodes(SocialNetworkNode nodeS) {
+	private SocialNetworkNode updateRemainingNodes(SocialNetworkNode nodeS,
+			Map<SocialNetworkNode, SocialNetworkNode> parentMap, ArrayList<SocialNetworkNode> leafNodes) {
 		// USE BFS for exploring and updating rest of the nodes in the graph
 		// Core updation algo in updateDistanceAndWeight
 
 		Queue<SocialNetworkNode> toExplore = new LinkedList<SocialNetworkNode>();
 		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
-		Map<SocialNetworkNode, SocialNetworkNode> parentMap = new HashMap<SocialNetworkNode, SocialNetworkNode>();
 
 		toExplore.addAll(nodeS.getNeighbors());
 		visited.add(nodeS);
 		visited.addAll(nodeS.getNeighbors());
 
 		System.out.println("\nStarting BFS exploration");
-
+		SocialNetworkNode currentNode = null;
 		while (!toExplore.isEmpty()) {
 			System.out.println("\ntoExplore - " + toExplore);
-			SocialNetworkNode currentNode = toExplore.remove();
+			currentNode = toExplore.remove();
 			System.out.println("currentNode - " + currentNode);
 
 			Set<SocialNetworkNode> neighbors = currentNode.getNeighbors();
 			System.out.println("Visited - " + visited);
 			System.out.println("Visiting neighbors - " + neighbors);
 
+			Integer numNeighborsAtNextLevel = 0;
 			for (SocialNetworkNode neighbor : neighbors) {
 				System.out.println("\tAt neighbor - " + neighbor);
 
 				updateDistanceAndWeightForRemainingNodes(currentNode, neighbor);
+
+				// Check if there is any node whose shortest path from start node
+				// goes through current node
+				if (neighbor.getDistance() > currentNode.getDistance())
+					numNeighborsAtNextLevel++;
 
 				if (!visited.contains(neighbor)) {
 					parentMap.put(neighbor, currentNode);
@@ -447,7 +491,14 @@ public class SocialNetworkGraph implements Graph {
 					System.out.println("\tNeighbor already visited - " + neighbor);
 				}
 			}
+			if (numNeighborsAtNextLevel == 0) {
+				// There are no shortest paths that pass through current node
+				System.out.println("Leaf node identified - " + currentNode);
+				leafNodes.add(currentNode);
+			}
 		}
+		System.out.println("Last node - " + currentNode);
+		return currentNode;
 	}
 
 	private void updateDistanceAndWeightForRemainingNodes(SocialNetworkNode nodeI, SocialNetworkNode nodeJ) {
@@ -507,5 +558,152 @@ public class SocialNetworkGraph implements Graph {
 		}
 		System.out.println("All nodes updated!");
 		return false;
+	}
+
+	public void updateEdgeScore(SocialNetworkNode endNode, ArrayList<SocialNetworkNode> leafNodes) {
+		System.out.println("Updating edge score");
+		// STEP I
+		updateEdgeScoreForLeafNodes(leafNodes);
+
+		// STEP II
+		updateEdgeScoreForRemainingEdges(endNode);
+	}
+
+	private void updateEdgeScoreForLeafNodes(ArrayList<SocialNetworkNode> leafNodes) {
+		// For each edge E (t->i) such that t is a leaf vertex, assign a score -
+		// Wi/Wt
+		System.out.println("Updating edge score for leaf nodes");
+		for (SocialNetworkNode leafNode : leafNodes) {
+			for (SocialNetworkNode leafNodeNeighbor : leafNode.getNeighbors()) {
+				Float score = new Float((float) leafNodeNeighbor.getWeight() / (float) leafNode.getWeight());
+				updateEdgeScore(leafNodeNeighbor, leafNode, score);
+			}
+		}
+	}
+
+	private void updateEdgeScore(SocialNetworkNode firstEnd, SocialNetworkNode secondEnd, Float score) {
+		System.out.println("\n\t\tUpdating new scores");
+		SocialNetworkEdge edge = secondEnd.getEdgeCorrespondingToNeighbor(firstEnd);
+		SocialNetworkEdge edgeFlipped = firstEnd.getEdgeCorrespondingToNeighbor(secondEnd);
+
+		System.out.println("\t\tBefore updation - ");
+		System.out.println("\t\t\t" + edge);
+		System.out.println("\t\t\t" + edgeFlipped);
+
+		edge.setBetweenness(score);
+		edgeFlipped.setBetweenness(score);
+
+		System.out.println("\t\tAfter updation - ");
+		System.out.println("\t\t\t" + edge);
+		System.out.println("\t\t\t" + edgeFlipped);
+	}
+
+	private void updateEdgeScoreForRemainingEdges(SocialNetworkNode endNode) {
+		System.out.println("\nUpdating edge score for remaining nodes");
+		// For each non-leaf edge starting from farthest edge, assign a score -
+		// (1 + sum of scores of neighboring edges immediately below it) x (Wi/Wj)
+
+		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
+		Queue<SocialNetworkNode> toExplore = new LinkedList<SocialNetworkNode>();
+		toExplore.add(endNode);
+
+		while (!toExplore.isEmpty()) {
+			System.out.println("\ntoExplore - " + toExplore);
+			SocialNetworkNode currentNode = toExplore.remove();
+			System.out.println("currentNode - " + currentNode);
+			if (visited.contains(currentNode)) {
+				System.out.println("Already visited. Skipping");
+				continue;
+			}
+			visited.add(currentNode);
+			System.out.println("Updated visited - " + visited);
+			System.out.println("Neighbors to visit - " + currentNode.getNeighbors());
+
+			for (SocialNetworkNode neighbor : currentNode.getNeighbors()) {
+				System.out.println("\n\tAt neighbor - " + neighbor);
+				toExplore.add(neighbor);
+				System.out.println("\tUpdated toExplore after adding neighbor - " + toExplore);
+				SocialNetworkEdge neighborEdge = currentNode.getEdgeCorrespondingToNeighbor(neighbor);
+				System.out.println("\tNeighbor edge - " + neighborEdge);
+
+				if (neighborEdge.getBetweenness() != null) {
+					System.out.println("\tScore already updated. Skipping! - ");
+					continue;
+				}
+
+				// Update score
+				boolean scoreUpdateSuccesful = calculateAndUpdateScoreForEdge(currentNode, neighbor, neighborEdge);
+				if (!scoreUpdateSuccesful) {
+					System.out.println(
+							"\n\tCouldn't update the score for edge - " + neighborEdge + " from node " + currentNode);
+					toExplore.add(currentNode);
+					visited.remove(currentNode);
+					System.out.println("\tRemoved current node from visited and added to toExplore for revisiting");
+				}
+			}
+		}
+	}
+
+	private boolean calculateAndUpdateScoreForEdge(SocialNetworkNode currentNode, SocialNetworkNode neighbor,
+			SocialNetworkEdge edge) {
+		System.out.println("\n\t\tCalculating and updating score for - " + edge);
+		System.out.println("\t\tcurrentNode - " + currentNode);
+		System.out.println("\t\tneighbor - " + neighbor);
+		Integer distanceOfCurrentNode = currentNode.getDistance();
+		Integer distanceOfNeighbor = neighbor.getDistance();
+		Float sumOfScoresOfBelowEdges = 0.0f;
+		Float newScore = 0.0f;
+		System.out.println("\t\tsumOfScoresOfBelowEdges - " + sumOfScoresOfBelowEdges);
+		System.out.println("\t\tNeighbors of current node to visit - " + currentNode.getNeighbors());
+
+		for (SocialNetworkNode neighborOfCurrentNode : currentNode.getNeighbors()) {
+			System.out.println("\n\t\t\tNeighbor of current node - " + neighborOfCurrentNode);
+			if (neighborOfCurrentNode.equals(neighbor)) {
+				System.out.println("\t\t\tThis is the neighbor whose edge score we are calculating. Skipping");
+				continue;
+			}
+			Integer distanceOfNeighborOfCurrentNode = neighborOfCurrentNode.getDistance();
+			System.out.println("\t\t\tdistance of current node - " + distanceOfCurrentNode);
+			System.out.println("\t\t\tdistance of neighbor - " + distanceOfNeighbor);
+			System.out.println("\t\t\tdistance of neighbor of current node - " + distanceOfNeighborOfCurrentNode);
+
+			if (distanceOfNeighborOfCurrentNode < distanceOfCurrentNode) {
+				System.out.println("\t\t\tNeighbor is not below current node. Skipping!");
+				continue;
+			}
+			if (distanceOfNeighborOfCurrentNode <= distanceOfNeighbor) {
+				System.out.println("\t\t\tNeighbor of current node is parallel to neighbor. Can't contribute to score");
+				continue;
+			}
+			SocialNetworkEdge neighborEdge = currentNode.getEdgeCorrespondingToNeighbor(neighborOfCurrentNode);
+			System.out.println("\t\t\tneighborEdge - " + neighborEdge);
+
+			if (neighborEdge.getBetweenness() == null) {
+				System.out.println("\t\t\tneighborEdge doesn't have a score - " + neighborEdge);
+				System.out.println("\n\t\tCouldn't update the score for edge - " + edge + " from node " + currentNode
+						+ " as one of the neighbor edge doesn't have score yet");
+				return false;
+			}
+			System.out.println("\t\t\tAdding neighborEdge's contribution to score");
+			sumOfScoresOfBelowEdges += neighborEdge.getBetweenness();
+			System.out.println("\t\t\tsumOfScoresOfBelowEdges - " + sumOfScoresOfBelowEdges);
+		}
+		if (sumOfScoresOfBelowEdges > 0.0f) {
+			newScore = (1 + sumOfScoresOfBelowEdges) * ((float) neighbor.getWeight() / (float) currentNode.getWeight());
+			System.out.println("\n\t\tnewScore - " + newScore);
+			updateEdgeScore(neighbor, currentNode, newScore);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public HashMap<SocialNetworkEdge, Float> getEdgeToBetweennessMap() {
+		HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap = new HashMap<SocialNetworkEdge, Float>();
+		for (SocialNetworkEdge edge : getEdges()) {
+			edgeToBetweennessMap.put(edge, edge.getBetweenness());
+		}
+
+		return edgeToBetweennessMap;
 	}
 }
