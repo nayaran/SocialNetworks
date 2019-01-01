@@ -426,7 +426,6 @@ public class SocialNetworkGraphTest {
 		return true;
 	}
 
-
 	@Test
 	void testGetConnectedComponents() {
 		System.out.println("\nTEST - testGetConnectedComponents");
@@ -443,13 +442,13 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(3, 4);
 
 		System.out.println("testGraph before getConnectedComponents() - " + testGraph);
-		
+
 		List<SocialNetworkGraph> connectedComponents = testGraph.getConnectedComponents();
 		System.out.println("\nTEST - 1 Connection components without modificaiton");
 		System.out.println("Connected components - " + connectedComponents);
 
-		assertEquals(connectedComponents.size(), 1);
-		
+		assertEquals(1, connectedComponents.size());
+
 		// Remove an edge
 		System.out.println("TEST - 2 Removing edges");
 		testGraph.removeEdge(2, 4);
@@ -457,6 +456,83 @@ public class SocialNetworkGraphTest {
 
 		connectedComponents = testGraph.getConnectedComponents();
 		System.out.println("\nConnected components - " + connectedComponents);
-		assertEquals(connectedComponents.size(), 2);
+		assertEquals(2, connectedComponents.size());
+	}
+
+	@Test
+	void testGetCommunities() {
+		System.out.println("\nTEST - testGtestGetCommunities");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "D");
+		testGraph.addVertex(4, "C");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(3, 4);
+
+		System.out.println("testGraph - " + testGraph);
+
+		List<SocialNetworkGraph> communities = testGraph.getConnectedComponents();
+		System.out.println("\nTEST - 1 Connected components before community detection");
+		System.out.println("Communities - " + communities);
+
+		assertEquals(1, communities.size());
+
+		// Detect communities
+		System.out.println("TEST - 2 Detecting communities");
+		Integer depth = 1;
+		communities = testGraph.getCommunities(depth);
+
+		System.out.println("\nCommunities - " + communities);
+		assertEquals(4, communities.size());
+	}
+
+	@Test
+	void testGetCommunitiesTest2() {
+		System.out.println("\nTEST - testGetCommunitiesTest2");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "D");
+		testGraph.addVertex(4, "C");
+		testGraph.addVertex(5, "E");
+		testGraph.addVertex(6, "F");
+		testGraph.addVertex(7, "G");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(1, 4);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(3, 4);
+		testGraph.addEdge(3, 5);
+		testGraph.addEdge(5, 6);
+		testGraph.addEdge(5, 7);
+		testGraph.addEdge(6, 7);
+
+		System.out.println("testGraph - " + testGraph);
+
+		List<SocialNetworkGraph> communities = testGraph.getConnectedComponents();
+
+		// Detect communities
+		System.out.println("TEST - 1 Detecting communities with depth 1");
+		Integer depth = 1;
+		communities = testGraph.getCommunities(depth);
+
+		System.out.println("\nCommunities - " + communities);
+		assertEquals(2, communities.size());
+
+		// Detect communities
+		System.out.println("TEST - 2 Detecting communities with depth 1");
+		depth = 2;
+		communities = testGraph.getCommunities(depth);
+
+		System.out.println("\nCommunities - " + communities);
+		assertEquals(4, communities.size());
+
 	}
 }

@@ -138,3 +138,4 @@ public class SocialNetworkEdge {
 		this.setBetweenness(null);
 	}
 }
+ 

@@ -3,6 +3,7 @@ package graph;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -247,6 +248,15 @@ public class SocialNetworkGraph implements Graph {
 		return edges;
 	}
 
+	public void removeEdge(SocialNetworkEdge edge) {
+		System.out.println("Removing edge - " + edge);
+
+		Integer firstVertex = edge.getFirstEnd().getItem();
+		Integer secondVertex = edge.getSecondEnd().getItem();
+
+		removeEdge(firstVertex, secondVertex);
+	}
+
 	public void removeEdge(int from, int to) {
 		System.out.println("Removing edge between " + from + " and " + to);
 
@@ -468,9 +478,15 @@ public class SocialNetworkGraph implements Graph {
 		Queue<SocialNetworkNode> toExplore = new LinkedList<SocialNetworkNode>();
 		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
 
-		toExplore.addAll(nodeS.getNeighbors());
+		Set<SocialNetworkNode> neighorsOfNodeS = nodeS.getNeighbors();
+
+		if (neighorsOfNodeS.isEmpty()) {
+			System.out.println("No neighbors to explore");
+			return null;
+		}
+		toExplore.addAll(neighorsOfNodeS);
 		visited.add(nodeS);
-		visited.addAll(nodeS.getNeighbors());
+		visited.addAll(neighorsOfNodeS);
 
 		System.out.println("\nStarting BFS exploration");
 		SocialNetworkNode currentNode = null;
@@ -628,7 +644,8 @@ public class SocialNetworkGraph implements Graph {
 			}
 			visited.add(currentNode);
 			System.out.println("Updated visited - " + visited);
-			System.out.println("Neighbors to visit - " + currentNode.getNeighbors());
+			Set<SocialNetworkNode> neighborsOfCurrentNode = currentNode.getNeighbors();
+			System.out.println("Neighbors to visit - " + neighborsOfCurrentNode);
 
 			for (SocialNetworkNode neighbor : currentNode.getNeighbors()) {
 				System.out.println("\n\tAt neighbor - " + neighbor);
@@ -720,11 +737,8 @@ public class SocialNetworkGraph implements Graph {
 	public HashMap<SocialNetworkEdge, Float> computeBetweenness() {
 		System.out.println("\nComputing betweenness");
 		/*
-		 * Initialize empty edgeToBetweennessMap
-		 * For every pair of shortest path:
-		 * 		Compute distance & weight 
-		 * 		Compute edge score
-		 * 		Update edgeToBetweennessMap
+		 * Initialize empty edgeToBetweennessMap For every pair of shortest path:
+		 * Compute distance & weight Compute edge score Update edgeToBetweennessMap
 		 * Return edgeToBetweennessMap
 		 */
 		HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap = getEdgeToBetweennessMap();
@@ -806,9 +820,9 @@ public class SocialNetworkGraph implements Graph {
 			oldMap.put(edgeInOldMap, oldValue + newValue);
 		}
 	}
-	public List<SocialNetworkGraph> getConnectedComponents(){
-		List<SocialNetworkGraph> listOfCC = new ArrayList<SocialNetworkGraph>();
 
+	public List<SocialNetworkGraph> getConnectedComponents() {
+		List<SocialNetworkGraph> listOfCC = new ArrayList<SocialNetworkGraph>();
 
 		// Initialize
 		List<Stack<SocialNetworkNode>> listOfStackOfNodesInSCCs = new ArrayList<Stack<SocialNetworkNode>>();
@@ -818,7 +832,7 @@ public class SocialNetworkGraph implements Graph {
 		System.out.println("Initial DFS - " + initialDFS);
 
 		System.out.println("List of list of nodes in SCC - " + listOfStackOfNodesInSCCs);
-		
+
 		// Post processing
 		listOfCC = constructCCsfromNodes(listOfStackOfNodesInSCCs);
 
@@ -845,35 +859,35 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public Stack<SocialNetworkNode> DFS(List<Stack<SocialNetworkNode>> listOfListOfNodesInSCCs) {
-		//System.out.println("\n\nRunning DFS on - " + graph);
-		//System.out.println("  Vertices to visit - " + vertices);
+		// System.out.println("\n\nRunning DFS on - " + graph);
+		// System.out.println(" Vertices to visit - " + vertices);
 
 		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
 		Stack<SocialNetworkNode> finished = new Stack<SocialNetworkNode>();
 
-		for(SocialNetworkNode vertex: graph.values()) {
+		for (SocialNetworkNode vertex : graph.values()) {
 			if (!visited.contains(vertex)) {
 				Stack<SocialNetworkNode> exploredVerticesInThisRun = new Stack<SocialNetworkNode>();
 				DFSVisit(vertex, visited, finished, exploredVerticesInThisRun);
 				listOfListOfNodesInSCCs.add(exploredVerticesInThisRun);
 
-				//System.out.println("Finished - " + finished);
-				//System.out.println("Explored vertices - " + exploredVerticesInThisRun);
+				// System.out.println("Finished - " + finished);
+				// System.out.println("Explored vertices - " + exploredVerticesInThisRun);
 			}
-			
+
 		}
 
 		return finished;
 	}
 
-	public void DFSVisit(SocialNetworkNode vertex, HashSet<SocialNetworkNode> visited, Stack<SocialNetworkNode> finished,
-			Stack<SocialNetworkNode> exploredVerticesInThisRun) {
+	public void DFSVisit(SocialNetworkNode vertex, HashSet<SocialNetworkNode> visited,
+			Stack<SocialNetworkNode> finished, Stack<SocialNetworkNode> exploredVerticesInThisRun) {
 		visited.add(vertex);
 		Collection<SocialNetworkNode> neighbors = vertex.getNeighbors();
 
-		//System.out.println("\nVisiting - " + vertex);
-		//System.out.println("Neighbors of " + vertex + " - " + neighbors);
-		//System.out.println("Visited - " + visited);
+		// System.out.println("\nVisiting - " + vertex);
+		// System.out.println("Neighbors of " + vertex + " - " + neighbors);
+		// System.out.println("Visited - " + visited);
 
 		for (SocialNetworkNode neighbor : neighbors) {
 			if (!visited.contains(neighbor)) {
@@ -883,9 +897,63 @@ public class SocialNetworkGraph implements Graph {
 		}
 		finished.add(vertex);
 		exploredVerticesInThisRun.push(vertex);
-		//System.out.println("Done with " + vertex + " - no more unvisited neighbors");
-		//System.out.println("Adding to finished and exploredVerticesInThisRun- " + vertex);
-		//System.out.println("Finished - " + finished);
-		//System.out.println("Explored vertices in this run - " + exploredVerticesInThisRun);
+		// System.out.println("Done with " + vertex + " - no more unvisited neighbors");
+		// System.out.println("Adding to finished and exploredVerticesInThisRun- " +
+		// vertex);
+		// System.out.println("Finished - " + finished);
+		// System.out.println("Explored vertices in this run - " +
+		// exploredVerticesInThisRun);
+	}
+
+	public List<SocialNetworkGraph> getCommunities(Integer iterations) {
+		System.out.println("\nCOMMUNITY DETECTION: Detecting communities with iterations - " + iterations);
+		// Algo
+		// Repeat for depthConstant times:
+		// STEP I - Compute betweenness of all edges
+		// STEP II - Remove egde(s) with highest betweenness
+		// STEP III - Return resulting subgraphs
+		List<SocialNetworkGraph> communities = new ArrayList<SocialNetworkGraph>();
+
+		while (iterations > 0) {
+			System.out.println("\nCOMMUNITY DETECTION: Iteration - " + iterations);
+			// STEP I
+			System.out.println("\nCOMMUNITY DETECTION: STEP I - Computing betweenness");
+			HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap = computeBetweenness();
+
+			// STEP II
+			System.out.println("\nCOMMUNITY DETECTION: STEP II - Removing edges with max betweenness");
+			removeEdgesWithMaxBetweenness(edgeToBetweennessMap);
+
+			iterations--;
+		}
+		System.out.println("\nCOMMUNITY DETECTION: STEP III - Retrieving subgraphs");
+		communities = getConnectedComponents();
+		System.out.println("\nCOMMUNITY DETECTION: Detected communities - " + communities.size());
+		System.out.println(communities);
+		System.out.println("\nCOMMUNITY DETECTION: FINISHED");
+		return communities;
+	}
+
+	private void removeEdgesWithMaxBetweenness(HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap) {
+		System.out.println("Removing edges with max betweenness");
+		System.out.println("edgeToBetweennessMap - " + edgeToBetweennessMap);
+		List<SocialNetworkEdge> edgesToRemove = new ArrayList<SocialNetworkEdge>();
+
+		Float maxBetweenness = Collections.max(edgeToBetweennessMap.values());
+		System.out.println("Max betweeness - " + maxBetweenness);
+		for (Entry<SocialNetworkEdge, Float> entry : edgeToBetweennessMap.entrySet()) {
+			SocialNetworkEdge edge = entry.getKey();
+			Float betweenness = entry.getValue();
+			if (betweenness.equals(maxBetweenness))
+				edgesToRemove.add(edge);
+		}
+		System.out.println("Edges to remove - " + edgesToRemove);
+		removeEdges(edgesToRemove);
+	}
+
+	private void removeEdges(List<SocialNetworkEdge> edgesToRemove) {
+		for (SocialNetworkEdge edge : edgesToRemove) {
+			removeEdge(edge);
+		}
 	}
 }
