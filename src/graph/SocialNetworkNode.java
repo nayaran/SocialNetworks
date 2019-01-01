@@ -208,4 +208,12 @@ public class SocialNetworkNode {
 		s = item.toString() + s;
 		return s;
 	}
+
+	public void resetNode() {
+		weight = null;
+		distance = null;
+
+		for (SocialNetworkEdge edge : getEdges())
+			edge.resetScore();
+	}
 }

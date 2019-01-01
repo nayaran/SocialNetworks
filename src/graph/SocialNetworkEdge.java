@@ -133,4 +133,8 @@ public class SocialNetworkEdge {
 
 		return s;
 	}
+
+	public void resetScore() {
+		this.setBetweenness(null);
+	}
 }

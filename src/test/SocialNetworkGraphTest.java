@@ -1,7 +1,7 @@
 package test;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.ArrayList;
@@ -200,7 +200,8 @@ public class SocialNetworkGraphTest {
 		expectedGraph.addEdge(6, 5);
 		expectedGraph.addEdge(4, 5);
 
-		testGraph.updateDistanceAndWeights(testGraph.getNode(1));
+		ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
+		testGraph.updateDistanceAndWeights(testGraph.getNode(1), leafNodes);
 
 		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
 		System.out.println("expectedGraph - " + expectedGraph);
@@ -248,7 +249,8 @@ public class SocialNetworkGraphTest {
 		expectedGraph.addEdge(5, 6);
 		expectedGraph.addEdge(5, 7);
 
-		testGraph.updateDistanceAndWeights(testGraph.getNode(1));
+		ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
+		testGraph.updateDistanceAndWeights(testGraph.getNode(1), leafNodes);
 
 		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
 		System.out.println("expectedGraph - " + expectedGraph);
@@ -309,6 +311,94 @@ public class SocialNetworkGraphTest {
 		HashMap<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.getEdgeToBetweennessMap();
 
 		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
+		System.out.println("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		System.out.println("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+
+		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
+	}
+
+	@Test
+	void testComputeBetweeness() {
+		System.out.println("\nTEST - testComputeBetweeness");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "D");
+		testGraph.addVertex(4, "C");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(3, 4);
+
+		System.out.println("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+
+		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
+		expectedGraph.addVertex(1, "A");
+		expectedGraph.addVertex(2, "B");
+		expectedGraph.addVertex(3, "D");
+		expectedGraph.addVertex(4, "C");
+
+		expectedGraph.addEdge(1, 2, 2.0f);
+		expectedGraph.addEdge(2, 4, 2.0f);
+		expectedGraph.addEdge(1, 3, 2.0f);
+		expectedGraph.addEdge(3, 4, 2.0f);
+
+		HashMap<SocialNetworkEdge, Float> expectedEdgeToBetweenessMap = expectedGraph.getEdgeToBetweennessMap();
+
+		HashMap<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.computeBetweenness();
+
+		System.out.println("\ntestGraph after testComputeBetweeness() - " + testGraph);
+		System.out.println("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		System.out.println("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+
+		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
+	}
+
+	@Test
+	void testComputeBetweenessTest2() {
+		System.out.println("\nTEST - testComputeBetweenessTest2");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "C");
+		testGraph.addVertex(4, "D");
+		testGraph.addVertex(5, "E");
+		testGraph.addVertex(6, "F");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(1, 4);
+		testGraph.addEdge(2, 3);
+		testGraph.addEdge(2, 5);
+		testGraph.addEdge(3, 6);
+		testGraph.addEdge(5, 6);
+		testGraph.addEdge(4, 5);
+
+		System.out.println("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+
+		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
+		expectedGraph.addVertex(1, "A");
+		expectedGraph.addVertex(2, "B");
+		expectedGraph.addVertex(3, "C");
+		expectedGraph.addVertex(4, "D");
+		expectedGraph.addVertex(5, "E");
+		expectedGraph.addVertex(6, "F");
+
+		expectedGraph.addEdge(1, 2, 4.0f);
+		expectedGraph.addEdge(1, 4, 2.67f);
+		expectedGraph.addEdge(2, 3, 4.0f);
+		expectedGraph.addEdge(2, 5, 3.67f);
+		expectedGraph.addEdge(3, 6, 2.67f);
+		expectedGraph.addEdge(5, 6, 4.0f);
+		expectedGraph.addEdge(4, 5, 4.0f);
+
+		HashMap<SocialNetworkEdge, Float> expectedEdgeToBetweenessMap = expectedGraph.getEdgeToBetweennessMap();
+
+		HashMap<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.computeBetweenness();
+
+		System.out.println("\ntestGraph after testComputeBetweeness() - " + testGraph);
 		System.out.println("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
 		System.out.println("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
 

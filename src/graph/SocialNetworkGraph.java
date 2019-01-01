@@ -1,6 +1,8 @@
 package graph;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -28,6 +30,14 @@ public class SocialNetworkGraph implements Graph {
 		Integer item = (Integer) num;
 		if (!graph.containsKey(item)) {
 			SocialNetworkNode node = new SocialNetworkNode(item);
+			graph.put(item, node);
+			numVertices++;
+		}
+	}
+
+	public void addVertex(SocialNetworkNode node) {
+		Integer item = (Integer) node.getItem();
+		if (!graph.containsKey(item)) {
 			graph.put(item, node);
 			numVertices++;
 		}
@@ -381,12 +391,11 @@ public class SocialNetworkGraph implements Graph {
 		return true;
 	}
 
-	public void updateDistanceAndWeights(SocialNetworkNode nodeS) {
+	public SocialNetworkNode updateDistanceAndWeights(SocialNetworkNode nodeS, ArrayList<SocialNetworkNode> leafNodes) {
 		System.out.println("\nRunning updateDistanceAndWeightsViaBFS......\n");
 
 		Map<SocialNetworkNode, SocialNetworkNode> parentMap = new HashMap<SocialNetworkNode, SocialNetworkNode>();
 		SocialNetworkNode lastNode;
-		ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
 
 		// Step I
 		updateStartingNode(nodeS);
@@ -400,6 +409,8 @@ public class SocialNetworkGraph implements Graph {
 		System.out.println("\nLast node - " + lastNode);
 		System.out.println("Parent map - " + parentMap);
 		System.out.println("Leaf nodes - " + leafNodes);
+
+		return lastNode;
 	}
 
 	private void updateStartingNode(SocialNetworkNode nodeS) {
@@ -703,7 +714,96 @@ public class SocialNetworkGraph implements Graph {
 		for (SocialNetworkEdge edge : getEdges()) {
 			edgeToBetweennessMap.put(edge, edge.getBetweenness());
 		}
-
 		return edgeToBetweennessMap;
+	}
+
+	public HashMap<SocialNetworkEdge, Float> computeBetweenness() {
+		System.out.println("\nComputing betweenness");
+		/*
+		 * Initialize empty edgeToBetweennessMap
+		 * For every pair of shortest path:
+		 * 		Compute distance & weight 
+		 * 		Compute edge score
+		 * 		Update edgeToBetweennessMap
+		 * Return edgeToBetweennessMap
+		 */
+		HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap = getEdgeToBetweennessMap();
+		HashMap<SocialNetworkEdge, Float> edgeToBetweennessMapNew;
+		Collection<SocialNetworkNode> nodes = getGraph().values();
+		System.out.println("Total nodes - " + nodes.size());
+		int count = 1;
+
+		for (SocialNetworkNode startNode : nodes) {
+			String status = "At node - " + count + "/" + nodes.size();
+			System.out.println("\n" + status);
+			System.out.println("---------------");
+
+			System.out.println("Running the algorithm for startNode - " + startNode);
+			System.out.println("\n" + status + " | Step I - Updating distance & weight");
+
+			System.out.println("\n" + status + " | Resetting nodes & edges");
+			System.out.println("Before - " + graph);
+			resetNodesAndEdges(nodes);
+			System.out.println("After - " + graph);
+
+			// Compute distance & weight
+			ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
+
+			SocialNetworkNode lastNode = updateDistanceAndWeights(startNode, leafNodes);
+
+			System.out.println("\nGraph after updating distances & weight - " + graph);
+
+			// Compute edge score
+			System.out.println("\n" + status + " | Step II - Updating edge scores");
+
+			updateEdgeScore(lastNode, leafNodes);
+
+			System.out.println("\n" + status + " | Step III - Updating betweenness");
+			System.out.println("Before - " + edgeToBetweennessMap);
+
+			// Update edgeToBetweennessMap
+			edgeToBetweennessMapNew = getEdgeToBetweennessMap();
+
+			updateEdgeToBetweennessMap(edgeToBetweennessMap, edgeToBetweennessMapNew);
+
+			System.out.println("Content to update - " + edgeToBetweennessMapNew);
+			System.out.println("After - " + edgeToBetweennessMap);
+			count += 1;
+			System.out.println();
+		}
+
+		reduceBetweennessByHalf(edgeToBetweennessMap);
+		System.out.println("\nFinished computing betweenness");
+		return edgeToBetweennessMap;
+	}
+
+	private void reduceBetweennessByHalf(HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap) {
+		for (SocialNetworkEdge edge : edgeToBetweennessMap.keySet()) {
+			float newBetweenness = edgeToBetweennessMap.get(edge) / 2.0f;
+			DecimalFormat newFormat = new DecimalFormat("#.##");
+			newBetweenness = Float.valueOf(newFormat.format(newBetweenness));
+			edgeToBetweennessMap.put(edge, newBetweenness);
+		}
+	}
+
+	private void resetNodesAndEdges(Collection<SocialNetworkNode> nodes) {
+		for (SocialNetworkNode node : nodes) {
+			node.resetNode();
+		}
+	}
+
+	void updateEdgeToBetweennessMap(HashMap<SocialNetworkEdge, Float> oldMap,
+			HashMap<SocialNetworkEdge, Float> newMap) {
+		for (Entry<SocialNetworkEdge, Float> entry : oldMap.entrySet()) {
+			SocialNetworkEdge edgeInOldMap = entry.getKey();
+			Float oldValue = entry.getValue();
+			Float newValue = newMap.get(edgeInOldMap);
+			if (newValue == null) {
+				System.out.println("New score not available in newMap for edge - " + edgeInOldMap);
+				continue;
+			}
+			oldValue = oldValue == null ? 0.0f : oldValue;
+			oldMap.put(edgeInOldMap, oldValue + newValue);
+		}
 	}
 }
