@@ -806,4 +806,86 @@ public class SocialNetworkGraph implements Graph {
 			oldMap.put(edgeInOldMap, oldValue + newValue);
 		}
 	}
+	public List<SocialNetworkGraph> getConnectedComponents(){
+		List<SocialNetworkGraph> listOfCC = new ArrayList<SocialNetworkGraph>();
+
+
+		// Initialize
+		List<Stack<SocialNetworkNode>> listOfStackOfNodesInSCCs = new ArrayList<Stack<SocialNetworkNode>>();
+
+		// Step 1 - Run DFS on G and store the order of traversal
+		Stack<SocialNetworkNode> initialDFS = DFS(listOfStackOfNodesInSCCs);
+		System.out.println("Initial DFS - " + initialDFS);
+
+		System.out.println("List of list of nodes in SCC - " + listOfStackOfNodesInSCCs);
+		
+		// Post processing
+		listOfCC = constructCCsfromNodes(listOfStackOfNodesInSCCs);
+
+		System.out.println("List of SCCs - " + listOfCC);
+
+		return listOfCC;
+	}
+
+	private List<SocialNetworkGraph> constructCCsfromNodes(List<Stack<SocialNetworkNode>> listOfStackOfNodesInCCs) {
+		List<SocialNetworkGraph> listOfCCs = new ArrayList<SocialNetworkGraph>();
+		for (Stack<SocialNetworkNode> stackOfNodes : listOfStackOfNodesInCCs) {
+			listOfCCs.add(constructGraphFromStackOfNodes(stackOfNodes));
+		}
+		return listOfCCs;
+	}
+
+	private SocialNetworkGraph constructGraphFromStackOfNodes(Stack<SocialNetworkNode> stackOfNodes) {
+		SocialNetworkGraph newGraph = new SocialNetworkGraph();
+		while (!stackOfNodes.isEmpty()) {
+			SocialNetworkNode node = stackOfNodes.pop();
+			newGraph.addVertex(node);
+		}
+		return newGraph;
+	}
+
+	public Stack<SocialNetworkNode> DFS(List<Stack<SocialNetworkNode>> listOfListOfNodesInSCCs) {
+		//System.out.println("\n\nRunning DFS on - " + graph);
+		//System.out.println("  Vertices to visit - " + vertices);
+
+		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
+		Stack<SocialNetworkNode> finished = new Stack<SocialNetworkNode>();
+
+		for(SocialNetworkNode vertex: graph.values()) {
+			if (!visited.contains(vertex)) {
+				Stack<SocialNetworkNode> exploredVerticesInThisRun = new Stack<SocialNetworkNode>();
+				DFSVisit(vertex, visited, finished, exploredVerticesInThisRun);
+				listOfListOfNodesInSCCs.add(exploredVerticesInThisRun);
+
+				//System.out.println("Finished - " + finished);
+				//System.out.println("Explored vertices - " + exploredVerticesInThisRun);
+			}
+			
+		}
+
+		return finished;
+	}
+
+	public void DFSVisit(SocialNetworkNode vertex, HashSet<SocialNetworkNode> visited, Stack<SocialNetworkNode> finished,
+			Stack<SocialNetworkNode> exploredVerticesInThisRun) {
+		visited.add(vertex);
+		Collection<SocialNetworkNode> neighbors = vertex.getNeighbors();
+
+		//System.out.println("\nVisiting - " + vertex);
+		//System.out.println("Neighbors of " + vertex + " - " + neighbors);
+		//System.out.println("Visited - " + visited);
+
+		for (SocialNetworkNode neighbor : neighbors) {
+			if (!visited.contains(neighbor)) {
+				visited.add(neighbor);
+				DFSVisit(neighbor, visited, finished, exploredVerticesInThisRun);
+			}
+		}
+		finished.add(vertex);
+		exploredVerticesInThisRun.push(vertex);
+		//System.out.println("Done with " + vertex + " - no more unvisited neighbors");
+		//System.out.println("Adding to finished and exploredVerticesInThisRun- " + vertex);
+		//System.out.println("Finished - " + finished);
+		//System.out.println("Explored vertices in this run - " + exploredVerticesInThisRun);
+	}
 }

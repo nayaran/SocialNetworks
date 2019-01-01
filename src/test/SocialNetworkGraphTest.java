@@ -425,4 +425,38 @@ public class SocialNetworkGraphTest {
 		}
 		return true;
 	}
+
+
+	@Test
+	void testGetConnectedComponents() {
+		System.out.println("\nTEST - testGetConnectedComponents");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "D");
+		testGraph.addVertex(4, "C");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(3, 4);
+
+		System.out.println("testGraph before getConnectedComponents() - " + testGraph);
+		
+		List<SocialNetworkGraph> connectedComponents = testGraph.getConnectedComponents();
+		System.out.println("\nTEST - 1 Connection components without modificaiton");
+		System.out.println("Connected components - " + connectedComponents);
+
+		assertEquals(connectedComponents.size(), 1);
+		
+		// Remove an edge
+		System.out.println("TEST - 2 Removing edges");
+		testGraph.removeEdge(2, 4);
+		testGraph.removeEdge(3, 4);
+
+		connectedComponents = testGraph.getConnectedComponents();
+		System.out.println("\nConnected components - " + connectedComponents);
+		assertEquals(connectedComponents.size(), 2);
+	}
 }
