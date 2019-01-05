@@ -5,7 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SocialNetworkNode {
+	private static final Logger logger = LogManager.getLogger(SocialNetworkNode.class);
+
 	private Integer item;
 	private Integer distance;
 	private Integer weight;
@@ -51,7 +56,7 @@ public class SocialNetworkNode {
 
 	public void addNeighbor(SocialNetworkNode node) {
 		if (neighbors.contains(node)) {
-			System.out.println("Neighbor already exists - " + node);
+			logger.debug("Neighbor already exists - " + node);
 			return;
 		}
 		neighbors.add(node);
@@ -62,7 +67,7 @@ public class SocialNetworkNode {
 
 	public void addNeighbor(SocialNetworkNode node, float betweenness) {
 		if (neighbors.contains(node)) {
-			System.out.println("Neighbor already exists - " + node);
+			logger.debug("Neighbor already exists - " + node);
 			return;
 		}
 		neighbors.add(node);
@@ -73,14 +78,14 @@ public class SocialNetworkNode {
 
 	public SocialNetworkEdge getEdgeCorrespondingToNeighbor(SocialNetworkNode neighbor) {
 		if (!neighbors.contains(neighbor)) {
-			System.out.println("Neighbor doesn't exist - " + neighbor);
+			logger.debug("Neighbor doesn't exist - " + neighbor);
 		}
 		return neighborToEdgeMap.get(neighbor);
 	}
 
 	public void removeNeighbor(SocialNetworkNode neighbor) {
 		if (!neighbors.contains(neighbor)) {
-			System.out.println("Neighbor doesn't exist - " + neighbor);
+			logger.debug("Neighbor doesn't exist - " + neighbor);
 			return;
 		}
 		neighbors.remove(neighbor);

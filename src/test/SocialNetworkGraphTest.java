@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +24,7 @@ import graph.SocialNetworkNode;
 import util.GraphLoader;
 
 public class SocialNetworkGraphTest {
+	private static final Logger logger = LogManager.getLogger(SocialNetworkGraphTest.class);
 	private static Graph testGraph;
 
 	@BeforeEach
@@ -33,8 +36,8 @@ public class SocialNetworkGraphTest {
 
 	private void loadGraph(Graph graph, String fileName) {
 		GraphLoader.loadGraph(graph, fileName);
-		System.out.print("Loaded " + fileName);
-		System.out.println(graph);
+		logger.debug("Loaded " + fileName);
+		logger.debug(graph);
 	}
 
 	private SocialNetworkGraph loadTinyGraph() {
@@ -48,14 +51,14 @@ public class SocialNetworkGraphTest {
 		tinyGraph.addEdge(5, "E", 6, "F");
 		tinyGraph.addEdge(5, "E", 7, "G");
 		tinyGraph.addEdge(6, "F", 7, "G");
-		System.out.print("Graph created");
-		System.out.println(tinyGraph);
+		logger.debug("Graph created");
+		logger.debug(tinyGraph);
 		return tinyGraph;
 	}
 
 	@Test
 	void testNumVertices() {
-		System.out.println("\nTEST - testNumVertices");
+		logger.info("TEST - testNumVertices");
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for total number of vertices in the graph
 		assertEquals(testGraph.exportGraph().size(), 14);
@@ -63,7 +66,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testNeighbors() {
-		System.out.println("\nTEST - testNeighbors");
+		logger.info("TEST - testNeighbors");
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for neighbors connected to 8
 		Integer num = 8;
@@ -74,7 +77,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testBFS() {
-		System.out.println("\nTEST - testBFS");
+		logger.info("TEST - testBFS");
 		SocialNetworkGraph testGraph = loadTinyGraph();
 
 		List<SocialNetworkNode> expectedPath = new ArrayList<SocialNetworkNode>();
@@ -86,18 +89,18 @@ public class SocialNetworkGraphTest {
 
 		int source = 2;
 		int destination = 7;
-		System.out.println("Searching for path between " + source + " and " + destination);
+		logger.debug("Searching for path between " + source + " and " + destination);
 
 		List<SocialNetworkNode> pathToTest = testGraph.BFS(source, destination);
 
 		String result = pathToTest == null ? "NA" : pathToTest.toString();
-		System.out.println("Path - " + result);
+		logger.debug("Path - " + result);
 		assertEquals(expectedPath, pathToTest);
 	}
 
 	@Test
 	void testRemoveEdge() {
-		System.out.println("\nTEST - testRemoveEdge");
+		logger.info("TEST - testRemoveEdge");
 		SocialNetworkGraph testGraph = loadTinyGraph();
 		HashMap<Integer, HashSet<Integer>> graphMap = testGraph.exportGraph();
 		SocialNetworkNode firstEnd = new SocialNetworkNode(3, "D");
@@ -105,26 +108,26 @@ public class SocialNetworkGraphTest {
 
 		SocialNetworkEdge edgeToRemove = new SocialNetworkEdge(firstEnd, secondEnd);
 		Set<SocialNetworkEdge> edges = testGraph.getEdges();
-		System.out.println("Edges before removal - " + edges);
-		System.out.println("Edge to remove - " + edgeToRemove);
+		logger.debug("Edges before removal - " + edges);
+		logger.debug("Edge to remove - " + edgeToRemove);
 		Set<Integer> neighborsOfFirstEnd = graphMap.get(firstEnd.getItem());
 		Set<Integer> neighborsOfSecondEnd = graphMap.get(secondEnd.getItem());
-		System.out.println("Neighbors of firstEnd before removal - " + neighborsOfFirstEnd);
-		System.out.println("Neighbors of secondEnd before removal - " + neighborsOfSecondEnd);
+		logger.debug("Neighbors of firstEnd before removal - " + neighborsOfFirstEnd);
+		logger.debug("Neighbors of secondEnd before removal - " + neighborsOfSecondEnd);
 
 		testGraph.removeEdge(3, 5);
 
 		graphMap = testGraph.exportGraph();
 
 		edges = testGraph.getEdges();
-		System.out.println("Edges after removal - " + edges);
+		logger.debug("Edges after removal - " + edges);
 		assertFalse(edges.contains(edgeToRemove));
 
 		neighborsOfFirstEnd = testGraph.exportGraph().get(firstEnd.getItem());
 		neighborsOfSecondEnd = testGraph.exportGraph().get(secondEnd.getItem());
 
-		System.out.println("Neighbors of firstEnd after removal - " + neighborsOfFirstEnd);
-		System.out.println("Neighbors of secondEnd after removal - " + neighborsOfSecondEnd);
+		logger.debug("Neighbors of firstEnd after removal - " + neighborsOfFirstEnd);
+		logger.debug("Neighbors of secondEnd after removal - " + neighborsOfSecondEnd);
 
 		assertFalse(neighborsOfFirstEnd.contains(secondEnd.getItem()));
 		assertFalse(neighborsOfSecondEnd.contains(firstEnd.getItem()));
@@ -132,7 +135,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testContainsForSocialNetworkNode() {
-		System.out.println("\nTEST - testContainsForSocialNetworkNode");
+		logger.info("TEST - testContainsForSocialNetworkNode");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(2);
 		assertTrue(testGraph.checkNodeForExistence(2));
@@ -140,7 +143,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testContainsForSocialNetworkEdge() {
-		System.out.println("\nTEST - testContainsForSocialNetworkEdge");
+		logger.info("TEST - testContainsForSocialNetworkEdge");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addEdge(2, 3);
 		assertTrue(testGraph.getEdges().contains(new SocialNetworkEdge(2, 3)));
@@ -148,7 +151,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testEqualityForSocialNetworkEdge() {
-		System.out.println("\nTest - testEqualityForSocialNetworkEdge");
+		logger.info("Test - testEqualityForSocialNetworkEdge");
 		SocialNetworkEdge edge1 = new SocialNetworkEdge(2, 3, 2.0f);
 		SocialNetworkEdge edge2 = new SocialNetworkEdge(2, 3);
 		SocialNetworkEdge edge3 = new SocialNetworkEdge(2, 3);
@@ -167,7 +170,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testUpdateDistanceAndWeights() {
-		System.out.println("\nTEST - testUpdateDistanceAndWeights");
+		logger.info("TEST - testUpdateDistanceAndWeights");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
 		testGraph.addVertex(3, "E");
@@ -183,7 +186,7 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(6, 5);
 		testGraph.addEdge(4, 5);
 
-		System.out.println("testGraph before updateDistanceAndWeights() - " + testGraph);
+		logger.debug("testGraph before updateDistanceAndWeights() - " + testGraph);
 
 		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
 		expectedGraph.addVertex(1, "A", 0, 1);
@@ -203,15 +206,15 @@ public class SocialNetworkGraphTest {
 		ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
 		testGraph.updateDistanceAndWeights(testGraph.getNode(1), leafNodes);
 
-		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
-		System.out.println("expectedGraph - " + expectedGraph);
+		logger.debug("testGraph after updateDistanceAndWeights() - " + testGraph);
+		logger.debug("expectedGraph - " + expectedGraph);
 
 		assertEquals(expectedGraph, testGraph);
 	}
 
 	@Test
 	void testUpdateDistanceAndWeightsTest2() {
-		System.out.println("\nTEST - testUpdateDistanceAndWeightsTest2");
+		logger.info("TEST - testUpdateDistanceAndWeightsTest2");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
 		testGraph.addVertex(2, "B");
@@ -230,7 +233,7 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(5, 6);
 		testGraph.addEdge(5, 7);
 
-		System.out.println("testGraph before updateDistanceAndWeights() - " + testGraph);
+		logger.debug("testGraph before updateDistanceAndWeights() - " + testGraph);
 
 		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
 		expectedGraph.addVertex(1, "A", 0, 1);
@@ -252,15 +255,15 @@ public class SocialNetworkGraphTest {
 		ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
 		testGraph.updateDistanceAndWeights(testGraph.getNode(1), leafNodes);
 
-		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
-		System.out.println("expectedGraph - " + expectedGraph);
+		logger.debug("testGraph after updateDistanceAndWeights() - " + testGraph);
+		logger.debug("expectedGraph - " + expectedGraph);
 
 		assertEquals(expectedGraph, testGraph);
 	}
 
 	@Test
 	void testUpdateEdgeBetweenness() {
-		System.out.println("\nTEST - testUpdateEdgeBetweenness");
+		logger.info("TEST - testUpdateEdgeBetweenness");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A", 0, 1);
@@ -280,7 +283,7 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(5, 6);
 		testGraph.addEdge(5, 7);
 
-		System.out.println("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+		logger.debug("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
 
 		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
 		expectedGraph.addVertex(1, "A", 0, 1);
@@ -310,16 +313,16 @@ public class SocialNetworkGraphTest {
 
 		HashMap<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.getEdgeToBetweennessMap();
 
-		System.out.println("\ntestGraph after updateDistanceAndWeights() - " + testGraph);
-		System.out.println("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
-		System.out.println("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+		logger.debug("testGraph after updateDistanceAndWeights() - " + testGraph);
+		logger.debug("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		logger.debug("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
 
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
 
 	@Test
 	void testComputeBetweeness() {
-		System.out.println("\nTEST - testComputeBetweeness");
+		logger.info("TEST - testComputeBetweeness");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -332,7 +335,7 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(1, 3);
 		testGraph.addEdge(3, 4);
 
-		System.out.println("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+		logger.debug("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
 
 		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
 		expectedGraph.addVertex(1, "A");
@@ -349,16 +352,16 @@ public class SocialNetworkGraphTest {
 
 		HashMap<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.computeBetweenness();
 
-		System.out.println("\ntestGraph after testComputeBetweeness() - " + testGraph);
-		System.out.println("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
-		System.out.println("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+		logger.debug("testGraph after testComputeBetweeness() - " + testGraph);
+		logger.debug("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		logger.debug("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
 
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
 
 	@Test
 	void testComputeBetweenessTest2() {
-		System.out.println("\nTEST - testComputeBetweenessTest2");
+		logger.info("TEST - testComputeBetweenessTest2");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -376,7 +379,7 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(5, 6);
 		testGraph.addEdge(4, 5);
 
-		System.out.println("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+		logger.debug("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
 
 		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
 		expectedGraph.addVertex(1, "A");
@@ -398,9 +401,9 @@ public class SocialNetworkGraphTest {
 
 		HashMap<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.computeBetweenness();
 
-		System.out.println("\ntestGraph after testComputeBetweeness() - " + testGraph);
-		System.out.println("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
-		System.out.println("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+		logger.debug("testGraph after testComputeBetweeness() - " + testGraph);
+		logger.debug("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		logger.debug("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
 
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
@@ -415,11 +418,11 @@ public class SocialNetworkGraphTest {
 			Float betweennessOfCorrespondingEdgeFromMap2 = map2.get(edgeFromMap1);
 
 			if (betweennessOfCorrespondingEdgeFromMap2 == null) {
-				System.out.println("Unequal for edge- " + edgeFromMap1);
+				logger.debug("Unequal for edge- " + edgeFromMap1);
 				return false;
 			}
 			if (!betweennessOfEdgeFromMap1.equals(betweennessOfCorrespondingEdgeFromMap2)) {
-				System.out.println("Unequal for edge- " + edgeFromMap1);
+				logger.debug("Unequal for edge- " + edgeFromMap1);
 				return false;
 			}
 		}
@@ -428,7 +431,7 @@ public class SocialNetworkGraphTest {
 
 	@Test
 	void testGetConnectedComponents() {
-		System.out.println("\nTEST - testGetConnectedComponents");
+		logger.info("TEST - testGetConnectedComponents");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -441,27 +444,27 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(1, 3);
 		testGraph.addEdge(3, 4);
 
-		System.out.println("testGraph before getConnectedComponents() - " + testGraph);
+		logger.debug("testGraph before getConnectedComponents() - " + testGraph);
 
 		List<SocialNetworkGraph> connectedComponents = testGraph.getConnectedComponents();
-		System.out.println("\nTEST - 1 Connection components without modificaiton");
-		System.out.println("Connected components - " + connectedComponents);
+		logger.debug("TEST - 1 Connection components without modificaiton");
+		logger.debug("Connected components - " + connectedComponents);
 
 		assertEquals(1, connectedComponents.size());
 
 		// Remove an edge
-		System.out.println("TEST - 2 Removing edges");
+		logger.debug("TEST - 2 Removing edges");
 		testGraph.removeEdge(2, 4);
 		testGraph.removeEdge(3, 4);
 
 		connectedComponents = testGraph.getConnectedComponents();
-		System.out.println("\nConnected components - " + connectedComponents);
+		logger.debug("Connected components - " + connectedComponents);
 		assertEquals(2, connectedComponents.size());
 	}
 
 	@Test
 	void testGetCommunities() {
-		System.out.println("\nTEST - testGtestGetCommunities");
+		logger.info("TEST - testGetCommunities");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -474,26 +477,26 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(1, 3);
 		testGraph.addEdge(3, 4);
 
-		System.out.println("testGraph - " + testGraph);
+		logger.debug("testGraph - " + testGraph);
 
 		List<SocialNetworkGraph> communities = testGraph.getConnectedComponents();
-		System.out.println("\nTEST - 1 Connected components before community detection");
-		System.out.println("Communities - " + communities);
+		logger.debug("TEST - 1 Connected components before community detection");
+		logger.debug("Communities - " + communities);
 
 		assertEquals(1, communities.size());
 
 		// Detect communities
-		System.out.println("TEST - 2 Detecting communities");
+		logger.debug("TEST - 2 Detecting communities");
 		Integer depth = 1;
 		communities = testGraph.getCommunities(depth);
 
-		System.out.println("\nCommunities - " + communities);
+		logger.debug("Communities - " + communities);
 		assertEquals(4, communities.size());
 	}
 
 	@Test
 	void testGetCommunitiesTest2() {
-		System.out.println("\nTEST - testGetCommunitiesTest2");
+		logger.info("TEST - testGetCommunitiesTest2");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -514,24 +517,51 @@ public class SocialNetworkGraphTest {
 		testGraph.addEdge(5, 7);
 		testGraph.addEdge(6, 7);
 
-		System.out.println("testGraph - " + testGraph);
+		logger.debug("testGraph - " + testGraph);
 
 		List<SocialNetworkGraph> communities = testGraph.getConnectedComponents();
 
 		// Detect communities
-		System.out.println("TEST - 1 Detecting communities with depth 1");
+		logger.debug("TEST - 1 Detecting communities with depth 1");
 		Integer depth = 1;
 		communities = testGraph.getCommunities(depth);
 
-		System.out.println("\nCommunities - " + communities);
+		logger.debug("Communities - " + communities);
 		assertEquals(2, communities.size());
 
 		// Detect communities
-		System.out.println("TEST - 2 Detecting communities with depth 1");
+		logger.debug("TEST - 2 Detecting communities with depth 1");
 		depth = 2;
 		communities = testGraph.getCommunities(depth);
 
-		System.out.println("\nCommunities - " + communities);
+		logger.debug("Communities - " + communities);
+		assertEquals(4, communities.size());
+	}
+
+	@Test
+	void testGetCommunitiesTestBig() {
+		logger.info("TEST - testGetCommunitiesTestBig");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		loadGraph(testGraph, "data/facebook_ucsd.txt");
+
+		logger.debug("testGraph - " + testGraph);
+
+		List<SocialNetworkGraph> communities = testGraph.getConnectedComponents();
+
+		// Detect communities
+		logger.debug("TEST - 1 Detecting communities with depth 1");
+		Integer depth = 1;
+		communities = testGraph.getCommunities(depth);
+
+		logger.debug("Communities - " + communities);
+		assertEquals(2, communities.size());
+
+		// Detect communities
+		logger.debug("TEST - 2 Detecting communities with depth 1");
+		depth = 2;
+		communities = testGraph.getCommunities(depth);
+
+		logger.debug("Communities - " + communities);
 		assertEquals(4, communities.size());
 
 	}
