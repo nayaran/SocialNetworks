@@ -35,9 +35,11 @@ public class SocialNetworkGraphTest {
 	}
 
 	private void loadGraph(Graph graph, String fileName) {
+		logger.info("Loading graph from " + fileName);
+		long startTime = System.currentTimeMillis();
 		GraphLoader.loadGraph(graph, fileName);
-		logger.debug("Loaded " + fileName);
-		logger.debug(graph);
+		logger.info(graph);
+		logger.info("Took {}ms", System.currentTimeMillis() - startTime);
 	}
 
 	private SocialNetworkGraph loadTinyGraph() {

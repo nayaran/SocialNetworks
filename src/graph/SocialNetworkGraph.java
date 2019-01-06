@@ -137,7 +137,7 @@ public class SocialNetworkGraph implements Graph {
 		SocialNetworkEdge edge = new SocialNetworkEdge(firstEnd, secondEnd);
 
 		if (firstEnd.getEdges().contains(edge) && secondEnd.getEdges().contains(edge)) {
-			logger.debug("Edge already exists - " + edge);
+			logger.debug("Edge already exists - {}", edge);
 			return;
 		}
 		firstEnd.addNeighbor(secondEnd);
@@ -157,7 +157,7 @@ public class SocialNetworkGraph implements Graph {
 		SocialNetworkEdge edge = new SocialNetworkEdge(firstEnd, secondEnd, betweenness);
 
 		if (firstEnd.getEdges().contains(edge) && secondEnd.getEdges().contains(edge)) {
-			logger.debug("Edge already exists - " + edge);
+			logger.debug("Edge already exists - {}", edge);
 			return;
 		}
 		firstEnd.addNeighbor(secondEnd, betweenness);
@@ -187,8 +187,8 @@ public class SocialNetworkGraph implements Graph {
 		Queue<SocialNetworkNode> toExplore = new LinkedList<SocialNetworkNode>();
 		Map<SocialNetworkNode, SocialNetworkNode> parentMap = new HashMap<SocialNetworkNode, SocialNetworkNode>();
 		logger.debug("Running BFS......");
-		logger.debug("Start - " + startNode);
-		logger.debug("Goal - " + endNode);
+		logger.debug("Start - {}", startNode);
+		logger.debug("Goal - {}", endNode);
 
 		// do bfs
 		boolean found = false;
@@ -196,8 +196,8 @@ public class SocialNetworkGraph implements Graph {
 
 		while (!toExplore.isEmpty()) {
 			SocialNetworkNode currentNode = toExplore.remove();
-			logger.debug("toExplore - " + toExplore);
-			logger.debug("currentNode - " + currentNode);
+			logger.debug("toExplore - {}", toExplore);
+			logger.debug("currentNode - {}", currentNode);
 
 			if (currentNode.equals(endNode)) {
 				logger.debug("MATCH FOUND!");
@@ -206,21 +206,21 @@ public class SocialNetworkGraph implements Graph {
 			}
 
 			Set<SocialNetworkNode> neighbors = currentNode.getNeighbors();
-			logger.debug("found - " + found);
-			logger.debug("visited - " + visited);
-			logger.debug("visiting neighbors - " + neighbors);
+			logger.debug("found - {}", found);
+			logger.debug("visited - {}", visited);
+			logger.debug("visiting neighbors - {}", neighbors);
 
 			for (SocialNetworkNode neighbor : neighbors) {
-				logger.debug("checking neighbor - " + neighbor);
+				logger.debug("checking neighbor - {}", neighbor);
 				if (!visited.contains(neighbor)) {
 					parentMap.put(neighbor, currentNode);
 					visited.add(neighbor);
 					toExplore.add(neighbor);
 				} else {
-					logger.debug("neighbor already visited - " + neighbor);
+					logger.debug("neighbor already visited - {}", neighbor);
 				}
 			}
-			logger.debug("toExplore - " + toExplore);
+			logger.debug("toExplore - {}", toExplore);
 		}
 		if (!found) {
 			return new LinkedList<SocialNetworkNode>();
@@ -250,7 +250,7 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public void removeEdge(SocialNetworkEdge edge) {
-		logger.debug("Removing edge - " + edge);
+		logger.debug("Removing edge - {}", edge);
 
 		Integer firstVertex = edge.getFirstEnd().getItem();
 		Integer secondVertex = edge.getSecondEnd().getItem();
@@ -259,7 +259,7 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public void removeEdge(int from, int to) {
-		logger.debug("Removing edge between " + from + " and " + to);
+		logger.debug("Removing edge between {} and 0{}", from, to);
 
 		SocialNetworkNode firstEnd = graph.get(from);
 		SocialNetworkNode secondEnd = graph.get(to);
@@ -309,8 +309,9 @@ public class SocialNetworkGraph implements Graph {
 
 	public String toString() {
 		String s = "";
-		s += "\n  # Vertices - " + graph.size();
-		s += "\n  # Edges - " + getEdges().size();
+		s += "{ #Vertices - " + graph.size();
+		s += ", #Edges - " + getEdges().size();
+		s += "}";
 		// s += "\n Edges - " + getStringifiedEdgesList();
 		// s += "\n Graph - " + getStringifiedGraph();
 		// s += "\n Nodes - " + graph.values();
@@ -380,7 +381,7 @@ public class SocialNetworkGraph implements Graph {
 	public SocialNetworkNode getNode(Integer num) {
 		SocialNetworkNode node = graph.get(num);
 		if (node == null)
-			logger.debug("Node doesnt exist for " + num);
+			logger.debug("Node doesnt exist for {}", num);
 		return graph.get(num);
 	}
 
@@ -409,17 +410,20 @@ public class SocialNetworkGraph implements Graph {
 		SocialNetworkNode lastNode;
 
 		// Step I
+		logger.debug("Updating starting node - {}", nodeS);
 		updateStartingNode(nodeS);
 
 		// Step II
+		logger.debug("Updating nodes adjacent to starting node");
 		updateNodesAdjacentToStartingNode(nodeS, parentMap);
 
 		// Step III
+		logger.debug("Updating remaining nodes");
 		lastNode = updateRemainingNodes(nodeS, parentMap, leafNodes);
 
-		logger.debug("Last node - " + lastNode);
-		logger.debug("Parent map - " + parentMap);
-		logger.debug("Leaf nodes - " + leafNodes);
+		logger.debug("Last node - {}", lastNode);
+		logger.debug("Parent map - {}", parentMap);
+		logger.debug("Leaf nodes - {}", leafNodes);
 
 		return lastNode;
 	}
@@ -430,16 +434,16 @@ public class SocialNetworkGraph implements Graph {
 		// Ds = 0
 		// Ws = 1
 
-		logger.debug("Beginning with start node, nodeS - " + nodeS);
+		logger.debug("Beginning with start node, nodeS - {}", nodeS);
 
 		Integer newDistance = 0;
 		Integer newWeight = 1;
 		nodeS.setDistance(0);
 		nodeS.setWeight(1);
 
-		logger.debug("Updated distance - " + newDistance);
-		logger.debug("Updated  weight - " + newWeight);
-		logger.debug("Node after updation -" + nodeS);
+		logger.debug("Updated distance - {}", newDistance);
+		logger.debug("Updated  weight - {}", newWeight);
+		logger.debug("Node after updation - {}", nodeS);
 
 	}
 
@@ -449,14 +453,14 @@ public class SocialNetworkGraph implements Graph {
 		// Di = Ds + 1 = 1
 		// Wi = Ws = 1
 
-		logger.debug("nodeS neighbors - " + nodeS.getNeighbors());
+		logger.debug("nodeS neighbors - {}", nodeS.getNeighbors());
 
 		Integer newDistance;
 		Integer newWeight;
 
 		for (SocialNetworkNode nodeI : nodeS.getNeighbors()) {
-			logger.debug("nodeI - " + nodeI);
-			logger.debug("Node is adjacent to start node - " + nodeI);
+			logger.debug("nodeI - {}", nodeI);
+			logger.debug("Node is adjacent to start node - {}", nodeI);
 
 			parentMap.put(nodeI, nodeS);
 
@@ -465,9 +469,9 @@ public class SocialNetworkGraph implements Graph {
 			nodeI.setDistance(newDistance);
 			nodeI.setWeight(newWeight);
 
-			logger.debug("Updated distance - " + newDistance);
-			logger.debug("Updated  weight - " + newWeight);
-			logger.debug("Node after updation -" + nodeI);
+			logger.debug("Updated distance - {}", newDistance);
+			logger.debug("Updated  weight - {}", newWeight);
+			logger.debug("Node after updation - {}", nodeI);
 		}
 	}
 
@@ -492,17 +496,17 @@ public class SocialNetworkGraph implements Graph {
 		logger.debug("Starting BFS exploration");
 		SocialNetworkNode currentNode = null;
 		while (!toExplore.isEmpty()) {
-			logger.debug("toExplore - " + toExplore);
+			logger.debug("toExplore - {}", toExplore);
 			currentNode = toExplore.remove();
-			logger.debug("currentNode - " + currentNode);
+			logger.debug("currentNode - {}", currentNode);
 
 			Set<SocialNetworkNode> neighbors = currentNode.getNeighbors();
-			logger.debug("Visited - " + visited);
-			logger.debug("Visiting neighbors - " + neighbors);
+			logger.debug("Visited - {}", visited);
+			logger.debug("Visiting neighbors - {}", neighbors);
 
 			Integer numNeighborsAtNextLevel = 0;
 			for (SocialNetworkNode neighbor : neighbors) {
-				logger.debug("At neighbor - " + neighbor);
+				logger.debug("At neighbor - {}", neighbor);
 
 				updateDistanceAndWeightForRemainingNodes(currentNode, neighbor);
 
@@ -516,16 +520,16 @@ public class SocialNetworkGraph implements Graph {
 					visited.add(neighbor);
 					toExplore.add(neighbor);
 				} else {
-					logger.debug("Neighbor already visited - " + neighbor);
+					logger.debug("Neighbor already visited - {}", neighbor);
 				}
 			}
 			if (numNeighborsAtNextLevel == 0) {
 				// There are no shortest paths that pass through current node
-				logger.debug("Leaf node identified - " + currentNode);
+				logger.debug("Leaf node identified - {}", currentNode);
 				leafNodes.add(currentNode);
 			}
 		}
-		logger.debug("Last node - " + currentNode);
+		logger.debug("Last node - {}", currentNode);
 		return currentNode;
 	}
 
@@ -541,8 +545,8 @@ public class SocialNetworkGraph implements Graph {
 		Integer newWeight;
 
 		logger.debug("updateDistanceAndWeight");
-		logger.debug("nodeI - " + nodeI);
-		logger.debug("nodeJ - " + nodeJ);
+		logger.debug("nodeI - {}", nodeI);
+		logger.debug("nodeJ - {}", nodeJ);
 
 		if (nodeJ.getDistance() == null) {
 			newDistance = nodeI.getDistance() + 1;
@@ -552,9 +556,9 @@ public class SocialNetworkGraph implements Graph {
 			nodeJ.setWeight(newWeight);
 
 			logger.debug("Case (a) - distance not assigned yet");
-			logger.debug("Updated distance - " + newDistance);
-			logger.debug("Updated  weight - " + newWeight);
-			logger.debug("nodeJ after updation - " + nodeJ);
+			logger.debug("Updated distance - {}", newDistance);
+			logger.debug("Updated  weight - {}", newWeight);
+			logger.debug("nodeJ after updation - {}", nodeJ);
 
 		} else {
 			if (nodeJ.getDistance() == nodeI.getDistance() + 1) {
@@ -562,8 +566,8 @@ public class SocialNetworkGraph implements Graph {
 				nodeJ.setWeight(newWeight);
 
 				logger.debug("Case (b) - distance assigned and dj = di+1 ");
-				logger.debug("Updated weight - " + newWeight);
-				logger.debug("nodeJ after updation - " + nodeJ);
+				logger.debug("Updated weight - {}", newWeight);
+				logger.debug("nodeJ after updation - {}", nodeJ);
 			}
 			if (nodeJ.getDistance() < (nodeI.getDistance() + 1)) {
 				logger.debug("Case (c) - distance assigned and dj < di + 1");
@@ -578,7 +582,7 @@ public class SocialNetworkGraph implements Graph {
 			if (node.getDistance() != null) {
 				for (SocialNetworkNode neighbor : node.getNeighbors()) {
 					if (neighbor.getDistance() == null) {
-						logger.debug(neighbor + " 's neighbor's distance yet to be updated - " + neighbor);
+						logger.debug("{}'s neighbor's distance yet to be updated - ", neighbor);
 						return true;
 					}
 				}
@@ -636,34 +640,34 @@ public class SocialNetworkGraph implements Graph {
 		toExplore.add(endNode);
 
 		while (!toExplore.isEmpty()) {
-			logger.debug("toExplore - " + toExplore);
+			logger.debug("toExplore - {}", toExplore);
 			SocialNetworkNode currentNode = toExplore.remove();
-			logger.debug("currentNode - " + currentNode);
+			logger.debug("currentNode - {}", currentNode);
 			if (visited.contains(currentNode)) {
 				logger.debug("Already visited. Skipping");
 				continue;
 			}
 			visited.add(currentNode);
-			logger.debug("Updated visited - " + visited);
+			logger.debug("Updated visited - {}", visited);
 			Set<SocialNetworkNode> neighborsOfCurrentNode = currentNode.getNeighbors();
-			logger.debug("Neighbors to visit - " + neighborsOfCurrentNode);
+			logger.debug("Neighbors to visit - {}", neighborsOfCurrentNode);
 
 			for (SocialNetworkNode neighbor : currentNode.getNeighbors()) {
-				logger.debug("At neighbor - " + neighbor);
+				logger.debug("At neighbor - {}", neighbor);
 				toExplore.add(neighbor);
-				logger.debug("Updated toExplore after adding neighbor - " + toExplore);
+				logger.debug("Updated toExplore after adding neighbor - {}", toExplore);
 				SocialNetworkEdge neighborEdge = currentNode.getEdgeCorrespondingToNeighbor(neighbor);
-				logger.debug("Neighbor edge - " + neighborEdge);
+				logger.debug("Neighbor edge - {}", neighborEdge);
 
 				if (neighborEdge.getBetweenness() != null) {
-					logger.debug("Score already updated. Skipping! - ");
+					logger.debug("Score already updated. Skipping! - {}", neighborEdge);
 					continue;
 				}
 
 				// Update score
 				boolean scoreUpdateSuccesful = calculateAndUpdateScoreForEdge(currentNode, neighbor, neighborEdge);
 				if (!scoreUpdateSuccesful) {
-					logger.debug("Couldn't update the score for edge - " + neighborEdge + " from node " + currentNode);
+					logger.debug("Couldn't update the score for edge - {} from node {}", neighborEdge, currentNode);
 					toExplore.add(currentNode);
 					visited.remove(currentNode);
 					logger.debug("Removed current node from visited and added to toExplore for revisiting");
@@ -674,26 +678,26 @@ public class SocialNetworkGraph implements Graph {
 
 	private boolean calculateAndUpdateScoreForEdge(SocialNetworkNode currentNode, SocialNetworkNode neighbor,
 			SocialNetworkEdge edge) {
-		logger.debug("Calculating and updating score for - " + edge);
-		logger.debug("currentNode - " + currentNode);
-		logger.debug("neighbor - " + neighbor);
+		logger.debug("Calculating and updating score for - {}", edge);
+		logger.debug("currentNode - {}", currentNode);
+		logger.debug("neighbor - {}", neighbor);
 		Integer distanceOfCurrentNode = currentNode.getDistance();
 		Integer distanceOfNeighbor = neighbor.getDistance();
 		Float sumOfScoresOfBelowEdges = 0.0f;
 		Float newScore = 0.0f;
-		logger.debug("sumOfScoresOfBelowEdges - " + sumOfScoresOfBelowEdges);
-		logger.debug("Neighbors of current node to visit - " + currentNode.getNeighbors());
+		logger.debug("sumOfScoresOfBelowEdges - {}", sumOfScoresOfBelowEdges);
+		logger.debug("Neighbors of current node to visit - {}", currentNode.getNeighbors());
 
 		for (SocialNetworkNode neighborOfCurrentNode : currentNode.getNeighbors()) {
-			logger.debug("Neighbor of current node - " + neighborOfCurrentNode);
+			logger.debug("Neighbor of current node - {}", neighborOfCurrentNode);
 			if (neighborOfCurrentNode.equals(neighbor)) {
 				logger.debug("This is the neighbor whose edge score we are calculating. Skipping");
 				continue;
 			}
 			Integer distanceOfNeighborOfCurrentNode = neighborOfCurrentNode.getDistance();
-			logger.debug("distance of current node - " + distanceOfCurrentNode);
-			logger.debug("distance of neighbor - " + distanceOfNeighbor);
-			logger.debug("distance of neighbor of current node - " + distanceOfNeighborOfCurrentNode);
+			logger.debug("distance of current node - {}", distanceOfCurrentNode);
+			logger.debug("distance of neighbor - {}", distanceOfNeighbor);
+			logger.debug("distance of neighbor of current node - {}", distanceOfNeighborOfCurrentNode);
 
 			if (distanceOfNeighborOfCurrentNode < distanceOfCurrentNode) {
 				logger.debug("Neighbor is not below current node. Skipping!");
@@ -704,21 +708,21 @@ public class SocialNetworkGraph implements Graph {
 				continue;
 			}
 			SocialNetworkEdge neighborEdge = currentNode.getEdgeCorrespondingToNeighbor(neighborOfCurrentNode);
-			logger.debug("neighborEdge - " + neighborEdge);
+			logger.debug("neighborEdge - {}", neighborEdge);
 
 			if (neighborEdge.getBetweenness() == null) {
-				logger.debug("neighborEdge doesn't have a score - " + neighborEdge);
-				logger.debug("Couldn't update the score for edge - " + edge + " from node " + currentNode
-						+ " as one of the neighbor edge doesn't have score yet");
+				logger.debug("neighborEdge doesn't have a score - {}", neighborEdge);
+				logger.debug("Couldn't update the score for edge - {} from node {}"
+						+ " as one of the neighbor edge doesn't have score yet", edge, currentNode);
 				return false;
 			}
 			logger.debug("Adding neighborEdge's contribution to score");
 			sumOfScoresOfBelowEdges += neighborEdge.getBetweenness();
-			logger.debug("sumOfScoresOfBelowEdges - " + sumOfScoresOfBelowEdges);
+			logger.debug("sumOfScoresOfBelowEdges - {}", sumOfScoresOfBelowEdges);
 		}
 		if (sumOfScoresOfBelowEdges > 0.0f) {
 			newScore = (1 + sumOfScoresOfBelowEdges) * ((float) neighbor.getWeight() / (float) currentNode.getWeight());
-			logger.debug("newScore - " + newScore);
+			logger.debug("newScore - {}", newScore);
 			updateEdgeScore(neighbor, currentNode, newScore);
 			return true;
 		} else {
@@ -744,42 +748,41 @@ public class SocialNetworkGraph implements Graph {
 		HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap = getEdgeToBetweennessMap();
 		HashMap<SocialNetworkEdge, Float> edgeToBetweennessMapNew;
 		Collection<SocialNetworkNode> nodes = getGraph().values();
-		logger.debug("Total nodes - " + nodes.size());
+		logger.debug("Total nodes - {}", nodes.size());
 		int count = 1;
 
 		for (SocialNetworkNode startNode : nodes) {
-			String status = "At node - " + count + "/" + nodes.size();
-			logger.debug("status - " + status);
-			logger.debug("Running the algorithm for startNode - " + startNode);
-			logger.debug(status + " | Step I - Updating distance & weight");
+			logger.debug("status - At node {}/{}", count, nodes.size());
+			logger.debug("Running the algorithm for startNode - {}", startNode);
+			logger.debug("At node - {}/{} | Step I - Updating distance & weight", count, nodes.size());
 
-			logger.debug(status + " | Resetting nodes & edges");
-			logger.debug("Before - " + graph);
+			logger.debug("At node - {}/{} | Resetting nodes & edges", count, nodes.size());
+			logger.debug("Before - {}", graph);
 			resetNodesAndEdges(nodes);
-			logger.debug("After - " + graph);
+			logger.debug("After - {}", graph);
 
 			// Compute distance & weight
 			ArrayList<SocialNetworkNode> leafNodes = new ArrayList<SocialNetworkNode>();
 
 			SocialNetworkNode lastNode = updateDistanceAndWeights(startNode, leafNodes);
 
-			logger.debug("Graph after updating distances & weight - " + graph);
+			logger.debug("Graph after updating distances & weight - {}", graph);
 
 			// Compute edge score
-			logger.debug(status + " | Step II - Updating edge scores");
+			logger.debug("At node - {}/{} | Step II - Updating edge scores", count, nodes.size());
 
 			updateEdgeScore(lastNode, leafNodes);
 
-			logger.debug(status + " | Step III - Updating betweenness");
-			logger.debug("Before - " + edgeToBetweennessMap);
+			logger.debug("At node - {}/{}| Step III - Updating betweenness", count, nodes.size());
+			logger.debug("Before - {}", edgeToBetweennessMap);
 
 			// Update edgeToBetweennessMap
 			edgeToBetweennessMapNew = getEdgeToBetweennessMap();
 
 			updateEdgeToBetweennessMap(edgeToBetweennessMap, edgeToBetweennessMapNew);
 
-			logger.debug("Content to update - " + edgeToBetweennessMapNew);
-			logger.debug("After - " + edgeToBetweennessMap);
+			logger.debug("Content to update - {}", edgeToBetweennessMapNew);
+			logger.debug("After - {}", edgeToBetweennessMap);
 			count += 1;
 		}
 
@@ -810,7 +813,7 @@ public class SocialNetworkGraph implements Graph {
 			Float oldValue = entry.getValue();
 			Float newValue = newMap.get(edgeInOldMap);
 			if (newValue == null) {
-				logger.debug("New score not available in newMap for edge - " + edgeInOldMap);
+				logger.debug("New score not available in newMap for edge - {}", edgeInOldMap);
 				continue;
 			}
 			oldValue = oldValue == null ? 0.0f : oldValue;
@@ -826,14 +829,14 @@ public class SocialNetworkGraph implements Graph {
 
 		// Step 1 - Run DFS on G and store the order of traversal
 		Stack<SocialNetworkNode> initialDFS = DFS(listOfStackOfNodesInSCCs);
-		logger.debug("Initial DFS - " + initialDFS);
+		logger.debug("Initial DFS - {}", initialDFS);
 
-		logger.debug("List of list of nodes in SCC - " + listOfStackOfNodesInSCCs);
+		logger.debug("List of list of nodes in SCC - {}", listOfStackOfNodesInSCCs);
 
 		// Post processing
 		listOfCC = constructCCsfromNodes(listOfStackOfNodesInSCCs);
 
-		logger.debug("List of SCCs - " + listOfCC);
+		logger.debug("List of SCCs - {}", listOfCC);
 
 		return listOfCC;
 	}
@@ -856,7 +859,7 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public Stack<SocialNetworkNode> DFS(List<Stack<SocialNetworkNode>> listOfListOfNodesInSCCs) {
-		logger.debug("Running DFS on - " + graph);
+		logger.debug("Running DFS on - {}", graph);
 
 		HashSet<SocialNetworkNode> visited = new HashSet<SocialNetworkNode>();
 		Stack<SocialNetworkNode> finished = new Stack<SocialNetworkNode>();
@@ -867,8 +870,8 @@ public class SocialNetworkGraph implements Graph {
 				DFSVisit(vertex, visited, finished, exploredVerticesInThisRun);
 				listOfListOfNodesInSCCs.add(exploredVerticesInThisRun);
 
-				logger.debug("Finished - " + finished);
-				logger.debug("Explored vertices - " + exploredVerticesInThisRun);
+				logger.debug("Finished - {}", finished);
+				logger.debug("Explored vertices - {}", exploredVerticesInThisRun);
 			}
 
 		}
@@ -881,9 +884,9 @@ public class SocialNetworkGraph implements Graph {
 		visited.add(vertex);
 		Collection<SocialNetworkNode> neighbors = vertex.getNeighbors();
 
-		logger.debug("Visiting - " + vertex);
-		logger.debug("Neighbors of " + vertex + " - " + neighbors);
-		logger.debug("Visited - " + visited);
+		logger.debug("Visiting - {}", vertex);
+		logger.debug("Neighbors of {} - {}", vertex, neighbors);
+		logger.debug("Visited - {}", visited);
 
 		for (SocialNetworkNode neighbor : neighbors) {
 			if (!visited.contains(neighbor)) {
@@ -893,55 +896,71 @@ public class SocialNetworkGraph implements Graph {
 		}
 		finished.add(vertex);
 		exploredVerticesInThisRun.push(vertex);
-		logger.debug("Done with " + vertex + " - no more unvisited neighbors");
-		logger.debug("Adding to finished and exploredVerticesInThisRun- " + vertex);
-		logger.debug("Finished - " + finished);
-		logger.debug("Explored vertices in this run - " + exploredVerticesInThisRun);
+		logger.debug("Done with {} - no more unvisited neighbors", vertex);
+		logger.debug("Adding to finished and exploredVerticesInThisRun - {}", vertex);
+		logger.debug("Finished - {}", finished);
+		logger.debug("Explored vertices in this run - {}", exploredVerticesInThisRun);
 	}
 
 	public List<SocialNetworkGraph> getCommunities(Integer iterations) {
-		logger.info("COMMUNITY DETECTION: Detecting communities with iterations - " + iterations);
+		logger.info("COMMUNITY DETECTION: Detecting communities with iterations - {}", iterations);
 		// Algo
 		// Repeat for depthConstant times:
 		// STEP I - Compute betweenness of all edges
 		// STEP II - Remove egde(s) with highest betweenness
 		// STEP III - Return resulting subgraphs
 		List<SocialNetworkGraph> communities = new ArrayList<SocialNetworkGraph>();
+		long startTime = 0;
+		long computeBetweennessTime = 0;
+		long removeEdgeTime = 0;
+		long retrievingSubgraphTime = 0;
 
 		while (iterations > 0) {
-			logger.info("COMMUNITY DETECTION: Iteration - " + iterations);
+			logger.info("COMMUNITY DETECTION: Iteration - {}", iterations);
 			// STEP I
 			logger.info("COMMUNITY DETECTION: STEP I - Computing betweenness");
+			startTime = System.currentTimeMillis();
 			HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap = computeBetweenness();
-
+			computeBetweennessTime = System.currentTimeMillis() - startTime;
+			logger.info("Took {}ms", computeBetweennessTime);
 			// STEP II
+			startTime = System.currentTimeMillis();
 			logger.info("COMMUNITY DETECTION: STEP II - Removing edges with max betweenness");
 			removeEdgesWithMaxBetweenness(edgeToBetweennessMap);
-
+			removeEdgeTime = System.currentTimeMillis() - startTime;
+			logger.info("Took {}ms", removeEdgeTime);
 			iterations--;
 		}
 		logger.info("COMMUNITY DETECTION: STEP III - Retrieving subgraphs");
+		startTime = System.currentTimeMillis();
 		communities = getConnectedComponents();
-		logger.info("COMMUNITY DETECTION: Detected communities - " + communities.size());
+		retrievingSubgraphTime = System.currentTimeMillis() - startTime;
+		logger.info("Took {}ms", retrievingSubgraphTime);
+
+		logger.info("COMMUNITY DETECTION: Detected communities - {}", communities.size());
 		logger.info(communities);
+
 		logger.info("COMMUNITY DETECTION: FINISHED");
+		logger.info("Total time - {}", (computeBetweennessTime + removeEdgeTime + retrievingSubgraphTime));
+		logger.info("Number of edges - {}", getEdges().size());
+		logger.info("Number of vertices - {}", graph.size());
 		return communities;
 	}
 
 	private void removeEdgesWithMaxBetweenness(HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap) {
 		logger.debug("Removing edges with max betweenness");
-		logger.debug("edgeToBetweennessMap - " + edgeToBetweennessMap);
+		logger.debug("edgeToBetweennessMap - {}", edgeToBetweennessMap);
 		List<SocialNetworkEdge> edgesToRemove = new ArrayList<SocialNetworkEdge>();
 
 		Float maxBetweenness = Collections.max(edgeToBetweennessMap.values());
-		logger.debug("Max betweeness - " + maxBetweenness);
+		logger.debug("Max betweeness - {}", maxBetweenness);
 		for (Entry<SocialNetworkEdge, Float> entry : edgeToBetweennessMap.entrySet()) {
 			SocialNetworkEdge edge = entry.getKey();
 			Float betweenness = entry.getValue();
 			if (betweenness.equals(maxBetweenness))
 				edgesToRemove.add(edge);
 		}
-		logger.debug("Edges to remove - " + edgesToRemove);
+		logger.debug("Edges to remove - {}", edgesToRemove);
 		removeEdges(edgesToRemove);
 	}
 
