@@ -1,8 +1,6 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +12,8 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import graph.Graph;
 import graph.SocialNetworkEdge;
@@ -27,8 +25,8 @@ public class SocialNetworkGraphTest {
 	private static final Logger logger = LogManager.getLogger(SocialNetworkGraphTest.class);
 	private static Graph testGraph;
 
-	@BeforeEach
-	void setUpBeforeClass() throws Exception {
+	@Before
+	public void setUpBeforeClass() throws Exception {
 		// Reset the graph before each test as each test has freedom to
 		// load its own graph
 		testGraph = new SocialNetworkGraph();
@@ -59,7 +57,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testNumVertices() {
+	public void testNumVertices() {
 		logger.info("TEST - testNumVertices");
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for total number of vertices in the graph
@@ -67,7 +65,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testNeighbors() {
+	public void testNeighbors() {
 		logger.info("TEST - testNeighbors");
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for neighbors connected to 8
@@ -78,7 +76,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testBFS() {
+	public void testBFS() {
 		logger.info("TEST - testBFS");
 		SocialNetworkGraph testGraph = loadTinyGraph();
 
@@ -101,7 +99,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testRemoveEdge() {
+	public void testRemoveEdge() {
 		logger.info("TEST - testRemoveEdge");
 		SocialNetworkGraph testGraph = loadTinyGraph();
 		HashMap<Integer, HashSet<Integer>> graphMap = testGraph.exportGraph();
@@ -136,7 +134,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testContainsForSocialNetworkNode() {
+	public void testContainsForSocialNetworkNode() {
 		logger.info("TEST - testContainsForSocialNetworkNode");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(2);
@@ -144,7 +142,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testContainsForSocialNetworkEdge() {
+	public void testContainsForSocialNetworkEdge() {
 		logger.info("TEST - testContainsForSocialNetworkEdge");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addEdge(2, 3);
@@ -152,7 +150,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testEqualityForSocialNetworkEdge() {
+	public void testEqualityForSocialNetworkEdge() {
 		logger.info("Test - testEqualityForSocialNetworkEdge");
 		SocialNetworkEdge edge1 = new SocialNetworkEdge(2, 3, 2.0f);
 		SocialNetworkEdge edge2 = new SocialNetworkEdge(2, 3);
@@ -171,7 +169,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testUpdateDistanceAndWeights() {
+	public void testUpdateDistanceAndWeights() {
 		logger.info("TEST - testUpdateDistanceAndWeights");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -215,7 +213,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testUpdateDistanceAndWeightsTest2() {
+	public void testUpdateDistanceAndWeightsTest2() {
 		logger.info("TEST - testUpdateDistanceAndWeightsTest2");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		testGraph.addVertex(1, "A");
@@ -264,7 +262,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testUpdateEdgeBetweenness() {
+	public void testUpdateEdgeBetweenness() {
 		logger.info("TEST - testUpdateEdgeBetweenness");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
@@ -323,7 +321,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testComputeBetweeness() {
+	public void testComputeBetweeness() {
 		logger.info("TEST - testComputeBetweeness");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
@@ -362,7 +360,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testComputeBetweenessTest2() {
+	public void testComputeBetweenessTest2() {
 		logger.info("TEST - testComputeBetweenessTest2");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
@@ -432,7 +430,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testGetConnectedComponents() {
+	public void testGetConnectedComponents() {
 		logger.info("TEST - testGetConnectedComponents");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
@@ -465,7 +463,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testGetCommunities() {
+	public void testGetCommunities() {
 		logger.info("TEST - testGetCommunities");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
@@ -497,7 +495,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testGetCommunitiesTest2() {
+	public void testGetCommunitiesTest2() {
 		logger.info("TEST - testGetCommunitiesTest2");
 
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
@@ -541,7 +539,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	void testGetCommunitiesTestBig() {
+	public void testGetCommunitiesTestBig() {
 		logger.info("TEST - testGetCommunitiesTestBig");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		loadGraph(testGraph, "data/facebook_ucsd.txt");
