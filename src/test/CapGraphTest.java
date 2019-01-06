@@ -1,6 +1,7 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,17 +11,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+
 import graph.CapGraph;
 import graph.Graph;
 import util.GraphLoader;
 
-class CapGraphTest {
+public class CapGraphTest {
 	private static Graph testGraph;
 
-	@BeforeEach
-	void setUpBeforeClass() throws Exception {
+	@Before
+	public void setUpBeforeClass() throws Exception {
 		// Reset the graph before each test as each test has freedom to
 		// load its own graph
 		testGraph = new CapGraph();
@@ -33,7 +34,7 @@ class CapGraphTest {
 	}
 
 	@Test
-	void testNumVertices() {
+	public void testNumVertices() {
 		System.out.println("\nTEST - testNumVertices");
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for total number of vertices in the graph
@@ -41,7 +42,7 @@ class CapGraphTest {
 	}
 
 	@Test
-	void testEdgeForSampleNode() {
+	public void testEdgeForSampleNode() {
 		System.out.println("\nTEST - testEdgeForSampleNode");
 		loadGraph(testGraph, "data/small_test_graph.txt");
 		// Tests for edges connected to 8
@@ -51,7 +52,7 @@ class CapGraphTest {
 	}
 
 	@Test
-	void testGetEgonet() {
+	public void testGetEgonet() {
 		// Test on a smaller dataset
 		System.out.println("\nTEST - testGetEgonet");
 		loadGraph(testGraph, "data/test_data_for_egonet.txt");
@@ -84,12 +85,12 @@ class CapGraphTest {
 		// Compare expected and received ego net
 		boolean result = CapGraph.doGraphsMatch(egonetToTest, expectedEgonet);
 		if (result == false) {
-			assertFalse(true, "Generated egonet does not match expected ego net");
+			assertFalse(true);
 		}
 	}
 
 	@Test
-	void testDfs() {
+	public void testDfs() {
 		// Test on a even smaller dataset
 		System.out.println("\nTEST - testDfs");
 		CapGraph testGraphForDfs;
@@ -117,7 +118,7 @@ class CapGraphTest {
 	}
 
 	@Test
-	void testGetSCC() {
+	public void testGetSCC() {
 		System.out.println("\nTEST - testGetSCC");
 		// Test on a even smaller dataset
 		loadGraph(testGraph, "data/test_data_for_scc.txt");
@@ -152,12 +153,12 @@ class CapGraphTest {
 		boolean result = compareListOfGraphs(expectedListOfSCC, listOfSCCToTest);
 
 		if (result == false) {
-			assertFalse(true, "Generated list of SCC do not match expected list of SCC");
+			assertFalse(true);
 		}
 	}
 
 	@Test
-	void testTransposeGraph() {
+	public void testTransposeGraph() {
 		System.out.println("\nTEST - testTransposeGraph");
 		loadGraph(testGraph, "data/test_data_for_egonet.txt");
 		Graph expectedGraph;
