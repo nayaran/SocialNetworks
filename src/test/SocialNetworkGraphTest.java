@@ -539,7 +539,7 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	public void testGetCommunitiesTestBig() {
+	public void testGetCommunitiesTestFacebookUCSD() {
 		logger.info("TEST - testGetCommunitiesTestBig");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		loadGraph(testGraph, "data/facebook_ucsd.txt");
