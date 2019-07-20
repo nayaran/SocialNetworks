@@ -669,6 +669,7 @@ public class SocialNetworkGraphTest {
 
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
+
 	@Test
 	public void testGetAtLeastNCommunitiesUsingBrandes() {
 		logger.info("TEST - testGetAtLeastNCommunitiesUsingBrandes");
@@ -713,4 +714,58 @@ public class SocialNetworkGraphTest {
 
 		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
 	}
+
+	@Test
+	public void testGetAtLeastNCommunitiesUsingBrandesComplex() {
+		logger.info("TEST - testGetAtLeastNCommunitiesUsingBrandes");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1);
+		testGraph.addVertex(3);
+		testGraph.addVertex(4);
+		testGraph.addVertex(2);
+		testGraph.addVertex(5);
+		testGraph.addVertex(6);
+		testGraph.addVertex(7);
+		testGraph.addVertex(8);
+
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(1, 4);
+		testGraph.addEdge(3, 1);
+		testGraph.addEdge(3, 2);
+		testGraph.addEdge(3, 4);
+		testGraph.addEdge(3, 5);
+		testGraph.addEdge(4, 1);
+		testGraph.addEdge(4, 3);
+		testGraph.addEdge(4, 5);
+		testGraph.addEdge(4, 6);
+		testGraph.addEdge(2, 1);
+		testGraph.addEdge(2, 3);
+		testGraph.addEdge(2, 6);
+		testGraph.addEdge(5, 3);
+		testGraph.addEdge(5, 4);
+		testGraph.addEdge(5, 6);
+		testGraph.addEdge(5, 7);
+		testGraph.addEdge(5, 8);
+		testGraph.addEdge(6, 2);
+		testGraph.addEdge(6, 4);
+		testGraph.addEdge(6, 5);
+		testGraph.addEdge(6, 7);
+		testGraph.addEdge(6, 8);
+		testGraph.addEdge(7, 5);
+		testGraph.addEdge(7, 6);
+		testGraph.addEdge(7, 8);
+		testGraph.addEdge(8, 5);
+		testGraph.addEdge(8, 6);
+		testGraph.addEdge(8, 7);
+
+		logger.debug("testGraph before testGetAtLeastNCommunitiesUsingBrandes() - " + testGraph);
+
+		Integer expectedCommunities = 2;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(2);
+
+		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
+	}
 }
+
