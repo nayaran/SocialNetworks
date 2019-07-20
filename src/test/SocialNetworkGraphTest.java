@@ -2,13 +2,8 @@ package test;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -408,8 +403,8 @@ public class SocialNetworkGraphTest {
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
 
-	private boolean testEdgeToBetweennessMapsForEquality(HashMap<SocialNetworkEdge, Float> map1,
-			HashMap<SocialNetworkEdge, Float> map2) {
+	private boolean testEdgeToBetweennessMapsForEquality(Map<SocialNetworkEdge, Float> map1,
+			Map<SocialNetworkEdge, Float> map2) {
 		if (map1.size() != map2.size())
 			return false;
 		for (Entry<SocialNetworkEdge, Float> entry : map1.entrySet()) {
@@ -539,10 +534,30 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	public void testGetCommunitiesTestFacebookUCSD() {
+	public void testGetCommunitiesTestFacebook2000() {
 		logger.info("TEST - testGetCommunitiesTestBig");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
-		loadGraph(testGraph, "data/facebook_ucsd.txt");
+		loadGraph(testGraph, "data/facebook_2000.txt");
+
+		logger.debug("testGraph - " + testGraph);
+
+		List<SocialNetworkGraph> communities;
+
+		// Detect communities
+		logger.debug("TEST - 2 Detecting communities with depth 1");
+		int depth = 2;
+		communities = testGraph.getCommunitiesUsingBrandes(depth);
+
+		logger.debug("Communities - " + communities);
+		assertEquals(13, communities.size());
+
+	}
+
+	@Test
+	public void testGetCommunitiesUsingBrandesForSmallTestGraph() {
+		logger.info("TEST - testGetCommunitiesForSmallTestGraph");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		loadGraph(testGraph, "data/small_test_graph.txt");
 
 		logger.debug("testGraph - " + testGraph);
 
@@ -551,18 +566,108 @@ public class SocialNetworkGraphTest {
 		// Detect communities
 		logger.debug("TEST - 1 Detecting communities with depth 1");
 		Integer depth = 1;
-		communities = testGraph.getCommunities(depth);
+		communities = testGraph.getCommunitiesUsingBrandes(depth);
 
 		logger.debug("Communities - " + communities);
 		assertEquals(2, communities.size());
 
 		// Detect communities
-		logger.debug("TEST - 2 Detecting communities with depth 1");
-		depth = 2;
-		communities = testGraph.getCommunities(depth);
+		logger.debug("TEST - 2 Detecting communities with depth 2");
+		depth = 1;
+		communities = testGraph.getCommunitiesUsingBrandes(depth);
 
 		logger.debug("Communities - " + communities);
-		assertEquals(4, communities.size());
+		assertEquals(6, communities.size());
 
+	}
+
+	@Test
+	public void testComputeBetweenessUsingBrandes() {
+		logger.info("TEST - testComputeBetweenessUsingBrandes");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "D");
+		testGraph.addVertex(4, "C");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(3, 4);
+
+		logger.debug("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+
+		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
+		expectedGraph.addVertex(1, "A");
+		expectedGraph.addVertex(2, "B");
+		expectedGraph.addVertex(3, "D");
+		expectedGraph.addVertex(4, "C");
+
+		expectedGraph.addEdge(1, 2, 2.0f);
+		expectedGraph.addEdge(2, 4, 2.0f);
+		expectedGraph.addEdge(1, 3, 2.0f);
+		expectedGraph.addEdge(3, 4, 2.0f);
+
+		HashMap<SocialNetworkEdge, Float> expectedEdgeToBetweenessMap = expectedGraph.getEdgeToBetweennessMap();
+
+		Map<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.computeBetweennessUsingBrandes();
+
+		logger.debug("testGraph after testComputeBetweeness() - " + testGraph);
+		logger.debug("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		logger.debug("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+
+		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
+	}
+
+
+
+	@Test
+	public void testComputeBetweenessUsingBrandesTest2() {
+		logger.info("TEST - testComputeBetweenessUsingBrandesTest2");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "C");
+		testGraph.addVertex(4, "D");
+		testGraph.addVertex(5, "E");
+		testGraph.addVertex(6, "F");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(1, 4);
+		testGraph.addEdge(2, 3);
+		testGraph.addEdge(2, 5);
+		testGraph.addEdge(3, 6);
+		testGraph.addEdge(5, 6);
+		testGraph.addEdge(4, 5);
+
+		logger.debug("testGraph before testUpdateEdgeBetweenness() - " + testGraph);
+
+		SocialNetworkGraph expectedGraph = new SocialNetworkGraph();
+		expectedGraph.addVertex(1, "A");
+		expectedGraph.addVertex(2, "B");
+		expectedGraph.addVertex(3, "C");
+		expectedGraph.addVertex(4, "D");
+		expectedGraph.addVertex(5, "E");
+		expectedGraph.addVertex(6, "F");
+
+		expectedGraph.addEdge(1, 2, 4.0f);
+		expectedGraph.addEdge(1, 4, 2.67f);
+		expectedGraph.addEdge(2, 3, 4.0f);
+		expectedGraph.addEdge(2, 5, 3.67f);
+		expectedGraph.addEdge(3, 6, 2.67f);
+		expectedGraph.addEdge(5, 6, 4.0f);
+		expectedGraph.addEdge(4, 5, 4.0f);
+
+		HashMap<SocialNetworkEdge, Float> expectedEdgeToBetweenessMap = expectedGraph.getEdgeToBetweennessMap();
+
+		Map<SocialNetworkEdge, Float> edgeToBetweenessMapToTest = testGraph.computeBetweennessUsingBrandes();
+
+		logger.debug("testGraph after testComputeBetweeness() - " + testGraph);
+		logger.debug("expectedEdgeToBetweenessMap - " + expectedEdgeToBetweenessMap);
+		logger.debug("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
+
+		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
 }

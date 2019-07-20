@@ -791,7 +791,7 @@ public class SocialNetworkGraph implements Graph {
 		return edgeToBetweennessMap;
 	}
 
-	private void reduceBetweennessByHalf(HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap) {
+	private void reduceBetweennessByHalf(Map<SocialNetworkEdge, Float> edgeToBetweennessMap) {
 		for (SocialNetworkEdge edge : edgeToBetweennessMap.keySet()) {
 			float newBetweenness = edgeToBetweennessMap.get(edge) / 2.0f;
 			DecimalFormat newFormat = new DecimalFormat("#.##");
@@ -947,7 +947,52 @@ public class SocialNetworkGraph implements Graph {
 		return communities;
 	}
 
-	private void removeEdgesWithMaxBetweenness(HashMap<SocialNetworkEdge, Float> edgeToBetweennessMap) {
+    public List<SocialNetworkGraph> getCommunitiesUsingBrandes(Integer iterations) {
+        logger.info("COMMUNITY DETECTION: Detecting communities with iterations - {}", iterations);
+        // Algo
+        // Repeat for iterations times:
+        // STEP I - Compute betweenness of all edges
+        // STEP II - Remove edge(s) with highest betweenness
+        // STEP III - Return resulting subgraphs
+        List<SocialNetworkGraph> communities = new ArrayList<SocialNetworkGraph>();
+        long startTime = 0;
+        long computeBetweennessTime = 0;
+        long removeEdgeTime = 0;
+        long retrievingSubgraphTime = 0;
+
+        while (iterations > 0) {
+            logger.info("COMMUNITY DETECTION: Iteration - {}", iterations);
+            // STEP I
+            logger.info("COMMUNITY DETECTION: STEP I - Computing betweenness");
+            startTime = System.currentTimeMillis();
+            Map<SocialNetworkEdge, Float> edgeToBetweennessMap = computeBetweennessUsingBrandes();
+            computeBetweennessTime = System.currentTimeMillis() - startTime;
+            logger.info("Took {}ms", computeBetweennessTime);
+            // STEP II
+            startTime = System.currentTimeMillis();
+            logger.info("COMMUNITY DETECTION: STEP II - Removing edges with max betweenness");
+            removeEdgesWithMaxBetweenness(edgeToBetweennessMap);
+            removeEdgeTime = System.currentTimeMillis() - startTime;
+            logger.info("Took {}ms", removeEdgeTime);
+            iterations--;
+        }
+        logger.info("COMMUNITY DETECTION: STEP III - Retrieving subgraphs");
+        startTime = System.currentTimeMillis();
+        communities = getConnectedComponents();
+        retrievingSubgraphTime = System.currentTimeMillis() - startTime;
+        logger.info("Took {}ms", retrievingSubgraphTime);
+
+        logger.info("COMMUNITY DETECTION: Detected communities - {}", communities.size());
+        logger.info(communities);
+
+        logger.info("COMMUNITY DETECTION: FINISHED");
+        logger.info("Total time - {}", (computeBetweennessTime + removeEdgeTime + retrievingSubgraphTime));
+        logger.info("Number of edges - {}", getEdges().size());
+        logger.info("Number of vertices - {}", graph.size());
+        return communities;
+    }
+
+	private void removeEdgesWithMaxBetweenness(Map<SocialNetworkEdge, Float> edgeToBetweennessMap) {
 		logger.debug("Removing edges with max betweenness");
 		logger.debug("edgeToBetweennessMap - {}", edgeToBetweennessMap);
 		List<SocialNetworkEdge> edgesToRemove = new ArrayList<SocialNetworkEdge>();
@@ -969,4 +1014,97 @@ public class SocialNetworkGraph implements Graph {
 			removeEdge(edge);
 		}
 	}
+
+    public Map<SocialNetworkEdge, Float> computeBetweennessUsingBrandes() {
+        // nodes to traverse
+        Queue<SocialNetworkNode> queue = new LinkedList<>();
+
+        // nodes to traverse in accumulation phase
+        Stack<SocialNetworkNode> stack = new Stack<>();
+
+        // distance from source
+        Map<SocialNetworkNode, Integer> distance = new HashMap<>();
+
+        // list of predecessors on shortest paths from source
+        Map<SocialNetworkNode, Set<SocialNetworkNode>> predecessor = new HashMap<>();
+
+        // number of shortest paths from source to v ∈ V
+        Map<SocialNetworkNode, Integer> sigma = new HashMap<>();
+
+        // dependency of source on v ∈ V
+        Map<SocialNetworkNode, Float> delta = new HashMap<>();
+
+        // node betweenness
+        Map<SocialNetworkNode, Float> nodeBetweenness = new HashMap<>();
+        for(SocialNetworkNode node: getGraph().values()){
+            nodeBetweenness.put(node, 0.0f);
+        }
+
+        // edge betweenness
+        Map<SocialNetworkEdge, Float> edgeBetweenness = new HashMap<>();
+        for(SocialNetworkEdge edge: getEdges()){
+            edgeBetweenness.put(edge, 0.0f);
+        }
+
+        Collection<SocialNetworkNode> nodes = getGraph().values();
+
+        for (SocialNetworkNode nodeS : nodes) {
+            // SINGLE-SOURCE SHORTEST-PATHS
+            // INITIALIZATION
+            for (SocialNetworkNode node: nodes) {
+                predecessor.put(node, new HashSet<>());
+                distance.put(node, -1);
+                sigma.put(node, 0);
+            }
+            distance.put(nodeS, 0);
+            sigma.put(nodeS, 1);
+            queue.add(nodeS);
+
+            while(!queue.isEmpty()){
+                SocialNetworkNode nodeV = queue.remove();
+                stack.push(nodeV);
+
+                for(SocialNetworkNode nodeW : nodeV.getNeighbors()){
+                    // PATH DISCOVERY - nodeW found for the first time?
+                    if (distance.get(nodeW).equals(-1)){
+                        distance.put(nodeW, distance.get(nodeV) + 1);
+                        queue.add(nodeW);
+                    }
+
+                    // PATH COUNTING - edge(v, w) on a shortest path?
+                    if (distance.get(nodeW).equals(distance.get(nodeV) + 1)){
+                        sigma.put(nodeW, sigma.get(nodeW) + sigma.get(nodeV));
+                        predecessor.get(nodeW).add(nodeV);
+                    }
+                }
+            }
+
+            // ACCUMULATION -- back-propagation of dependencies
+            for (SocialNetworkNode nodeV : nodes) {
+                delta.put(nodeV, 0.0f);
+            }
+            while(!stack.isEmpty()){
+                SocialNetworkNode nodeW = stack.pop();
+                for(SocialNetworkNode nodeV: predecessor.get(nodeW)){
+                    float c = ((float) sigma.get(nodeV)/sigma.get(nodeW)) * (1 + delta.get(nodeW));
+                    edgeBetweenness.put(nodeV.getEdgeCorrespondingToNeighbor(nodeW),
+                            edgeBetweenness.get(nodeV.getEdgeCorrespondingToNeighbor(nodeW)) + c);
+                    delta.put(nodeV, delta.get(nodeV) + c);
+                }
+
+                if (!nodeW.equals(nodeS)){
+                    nodeBetweenness.put(nodeW, nodeBetweenness.get(nodeW) + delta.get(nodeW));
+                }
+            }
+        }
+        reduceBetweennessByHalf(edgeBetweenness);
+        updateEdgeBetweenness(edgeBetweenness);
+        return edgeBetweenness;
+    }
+
+    private void updateEdgeBetweenness(Map<SocialNetworkEdge, Float> edgeBetweenness) {
+        for(SocialNetworkEdge edge:getEdges()){
+            edge.setBetweenness(edgeBetweenness.get(edge));
+        }
+    }
 }
