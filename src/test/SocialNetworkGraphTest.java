@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -517,7 +518,7 @@ public class SocialNetworkGraphTest {
 		List<SocialNetworkGraph> communities = testGraph.getConnectedComponents();
 
 		// Detect communities
-		logger.debug("TEST - 1 Detecting communities with depth 1");
+		logger.debug("TEST - 1 Detecting communities with iterations 1");
 		Integer depth = 1;
 		communities = testGraph.getCommunities(depth);
 
@@ -525,7 +526,7 @@ public class SocialNetworkGraphTest {
 		assertEquals(2, communities.size());
 
 		// Detect communities
-		logger.debug("TEST - 2 Detecting communities with depth 1");
+		logger.debug("TEST - 2 Detecting communities with iterations 2");
 		depth = 2;
 		communities = testGraph.getCommunities(depth);
 
@@ -620,8 +621,6 @@ public class SocialNetworkGraphTest {
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
 	}
 
-
-
 	@Test
 	public void testComputeBetweenessUsingBrandesTest2() {
 		logger.info("TEST - testComputeBetweenessUsingBrandesTest2");
@@ -669,5 +668,49 @@ public class SocialNetworkGraphTest {
 		logger.debug("edgeToBetweenessMapToTest - " + edgeToBetweenessMapToTest);
 
 		assertTrue(testEdgeToBetweennessMapsForEquality(expectedEdgeToBetweenessMap, edgeToBetweenessMapToTest));
+	}
+	@Test
+	public void testGetAtLeastNCommunitiesUsingBrandes() {
+		logger.info("TEST - testGetAtLeastNCommunitiesUsingBrandes");
+
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		testGraph.addVertex(1, "A");
+		testGraph.addVertex(2, "B");
+		testGraph.addVertex(3, "D");
+		testGraph.addVertex(4, "C");
+		testGraph.addVertex(5, "E");
+		testGraph.addVertex(6, "F");
+		testGraph.addVertex(7, "G");
+
+		testGraph.addEdge(1, 2);
+		testGraph.addEdge(1, 3);
+		testGraph.addEdge(1, 4);
+		testGraph.addEdge(2, 4);
+		testGraph.addEdge(3, 4);
+		testGraph.addEdge(3, 5);
+		testGraph.addEdge(5, 6);
+		testGraph.addEdge(5, 7);
+		testGraph.addEdge(6, 7);
+
+		logger.debug("testGraph before testGetAtLeastNCommunitiesUsingBrandes() - " + testGraph);
+
+		Integer expectedCommunities = 2;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(2);
+
+		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
+	}
+
+	@Test
+	public void testGetCommunitiesUsingBrandesForKarateClub() {
+		logger.info("TEST - testGetCommunitiesUsingBrandesForKarateClub");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		loadGraph(testGraph, "data/karate.txt");
+
+		logger.debug("testGraph - " + testGraph);
+
+		Integer expectedCommunities = 2;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(2);
+
+		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
 	}
 }

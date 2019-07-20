@@ -308,13 +308,12 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public String toString() {
-		String s = "";
-		s += "{ #Vertices - " + graph.size();
-		s += ", #Edges - " + getEdges().size();
-		s += "}";
+		String s = "\n";
+//		s += " #Vertices - " + graph.size();
+//		s += ", #Edges - " + getEdges().size();
 		// s += "\n Edges - " + getStringifiedEdgesList();
-		// s += "\n Graph - " + getStringifiedGraph();
-		// s += "\n Nodes - " + graph.values();
+//		s += "\n Graph - " + getStringifiedGraph();
+		s += graph.values();
 		return s;
 	}
 
@@ -948,7 +947,7 @@ public class SocialNetworkGraph implements Graph {
 	}
 
     public List<SocialNetworkGraph> getCommunitiesUsingBrandes(Integer iterations) {
-        logger.info("COMMUNITY DETECTION: Detecting communities with iterations - {}", iterations);
+        logger.debug("COMMUNITY DETECTION: Detecting communities with iterations - {}", iterations);
         // Algo
         // Repeat for iterations times:
         // STEP I - Compute betweenness of all edges
@@ -961,36 +960,84 @@ public class SocialNetworkGraph implements Graph {
         long retrievingSubgraphTime = 0;
 
         while (iterations > 0) {
-            logger.info("COMMUNITY DETECTION: Iteration - {}", iterations);
+            logger.debug("COMMUNITY DETECTION: Iteration - {}", iterations);
+
             // STEP I
-            logger.info("COMMUNITY DETECTION: STEP I - Computing betweenness");
             startTime = System.currentTimeMillis();
             Map<SocialNetworkEdge, Float> edgeToBetweennessMap = computeBetweennessUsingBrandes();
             computeBetweennessTime = System.currentTimeMillis() - startTime;
-            logger.info("Took {}ms", computeBetweennessTime);
+            logger.debug("COMMUNITY DETECTION: STEP I - Computing betweenness - Took {}ms", computeBetweennessTime);
+
             // STEP II
             startTime = System.currentTimeMillis();
-            logger.info("COMMUNITY DETECTION: STEP II - Removing edges with max betweenness");
             removeEdgesWithMaxBetweenness(edgeToBetweennessMap);
             removeEdgeTime = System.currentTimeMillis() - startTime;
-            logger.info("Took {}ms", removeEdgeTime);
+            logger.debug("COMMUNITY DETECTION: STEP II - Removing edges with max betweenness - Took {}ms", removeEdgeTime);
+
             iterations--;
         }
-        logger.info("COMMUNITY DETECTION: STEP III - Retrieving subgraphs");
+
+        // STEP III
         startTime = System.currentTimeMillis();
         communities = getConnectedComponents();
         retrievingSubgraphTime = System.currentTimeMillis() - startTime;
-        logger.info("Took {}ms", retrievingSubgraphTime);
+        logger.debug("COMMUNITY DETECTION: STEP III - Retrieving subgraphs - Took {}ms", retrievingSubgraphTime);
 
-        logger.info("COMMUNITY DETECTION: Detected communities - {}", communities.size());
-        logger.info(communities);
+        logger.info("COMMUNITY DETECTION: Detected communities - {} - {}", communities.size(), communities);
 
-        logger.info("COMMUNITY DETECTION: FINISHED");
-        logger.info("Total time - {}", (computeBetweennessTime + removeEdgeTime + retrievingSubgraphTime));
-        logger.info("Number of edges - {}", getEdges().size());
-        logger.info("Number of vertices - {}", graph.size());
+        logger.debug("COMMUNITY DETECTION: FINISHED");
+        logger.debug("Total time - {}", (computeBetweennessTime + removeEdgeTime + retrievingSubgraphTime));
+        logger.debug("Number of edges - {}", getEdges().size());
+        logger.debug("Number of vertices - {}", graph.size());
         return communities;
     }
+
+	public List<SocialNetworkGraph> getAtLeastNCommunitiesUsingBrandes(Integer desiredCommunities) {
+		logger.debug("COMMUNITY DETECTION: Detecting {} desiredCommunities", desiredCommunities);
+		// Algo
+		// Repeat for iterations times:
+		// STEP I - Compute betweenness of all edges
+		// STEP II - Remove edge(s) with highest betweenness
+		// STEP III - Return resulting subgraphs
+		List<SocialNetworkGraph> communities = new ArrayList<SocialNetworkGraph>();
+		long startTime = 0;
+		long computeBetweennessTime = 0;
+		long removeEdgeTime = 0;
+		long retrievingSubgraphTime = 0;
+		int iteration = 1;
+		while (communities.size() < desiredCommunities) {
+			logger.debug("COMMUNITY DETECTION: Iteration - {}", iteration);
+
+			// STEP I
+			startTime = System.currentTimeMillis();
+			Map<SocialNetworkEdge, Float> edgeToBetweennessMap = computeBetweennessUsingBrandes();
+			computeBetweennessTime = System.currentTimeMillis() - startTime;
+			logger.debug("COMMUNITY DETECTION: STEP I - Computing betweenness - Took {}ms", computeBetweennessTime);
+
+			// STEP II
+			startTime = System.currentTimeMillis();
+			removeEdgesWithMaxBetweenness(edgeToBetweennessMap);
+			removeEdgeTime = System.currentTimeMillis() - startTime;
+			logger.debug("COMMUNITY DETECTION: STEP II - Removing edges with max betweenness - Took {}ms", removeEdgeTime);
+
+			// STEP III
+			startTime = System.currentTimeMillis();
+			communities = getConnectedComponents();
+			retrievingSubgraphTime = System.currentTimeMillis() - startTime;
+			logger.debug("COMMUNITY DETECTION: STEP III - Retrieving subgraphs - Took {}ms", retrievingSubgraphTime);
+
+			logger.info("COMMUNITY DETECTION: Detected communities - {} in {} iterations - {}", communities.size(),
+					iteration, communities);
+
+			iteration++;
+		}
+
+		logger.debug("COMMUNITY DETECTION: FINISHED");
+		logger.debug("Total time - {}", (computeBetweennessTime + removeEdgeTime + retrievingSubgraphTime));
+		logger.debug("Number of edges - {}", getEdges().size());
+		logger.debug("Number of vertices - {}", graph.size());
+		return communities;
+	}
 
 	private void removeEdgesWithMaxBetweenness(Map<SocialNetworkEdge, Float> edgeToBetweennessMap) {
 		logger.debug("Removing edges with max betweenness");
