@@ -309,11 +309,21 @@ public class SocialNetworkGraph implements Graph {
 
 	public String toString() {
 		String s = "\n";
-//		s += " #Vertices - " + graph.size();
-//		s += ", #Edges - " + getEdges().size();
+		s += " #Vertices - " + graph.size();
+		if (getNumEdges() > 0) s += ", #Edges - " + getNumEdges();
 		// s += "\n Edges - " + getStringifiedEdgesList();
 //		s += "\n Graph - " + getStringifiedGraph();
-		s += graph.values();
+//		s += "\n Nodes - " + getStringifiedGraph();
+		s += ", Nodes - " + graph.values();
+		return s;
+	}
+
+	public String getSummaryAsString() {
+		String s = "";
+		s += "#Vertices - " + graph.size();
+		if (getNumEdges() > 0) s += ", #Edges - " + getNumEdges();
+		// s += "\n Edges - " + getStringifiedEdgesList();
+//		s += "\n Graph - " + getStringifiedGraph();
 		return s;
 	}
 

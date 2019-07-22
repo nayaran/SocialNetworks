@@ -16,10 +16,11 @@ import graph.SocialNetworkEdge;
 import graph.SocialNetworkGraph;
 import graph.SocialNetworkNode;
 import util.GraphLoader;
+import util.GraphLoaderWithLabels;
 
 public class SocialNetworkGraphTest {
 	private static final Logger logger = LogManager.getLogger(SocialNetworkGraphTest.class);
-	private static Graph testGraph;
+	private static SocialNetworkGraph testGraph;
 
 	@Before
 	public void setUpBeforeClass() throws Exception {
@@ -28,11 +29,19 @@ public class SocialNetworkGraphTest {
 		testGraph = new SocialNetworkGraph();
 	}
 
-	private void loadGraph(Graph graph, String fileName) {
+	private void loadGraph(SocialNetworkGraph graph, String fileName) {
 		logger.info("Loading graph from " + fileName);
 		long startTime = System.currentTimeMillis();
 		GraphLoader.loadGraph(graph, fileName);
-		logger.info(graph);
+		logger.info(graph.getSummaryAsString());
+		logger.info("Took {}ms", System.currentTimeMillis() - startTime);
+	}
+
+	private void loadGraph2(SocialNetworkGraph graph, String fileName) {
+		logger.info("Loading graph from " + fileName);
+		long startTime = System.currentTimeMillis();
+		GraphLoaderWithLabels.loadGraph(graph, fileName);
+		logger.info("Parsed - " + graph.getSummaryAsString());
 		logger.info("Took {}ms", System.currentTimeMillis() - startTime);
 	}
 
@@ -696,7 +705,8 @@ public class SocialNetworkGraphTest {
 		logger.debug("testGraph before testGetAtLeastNCommunitiesUsingBrandes() - " + testGraph);
 
 		Integer expectedCommunities = 2;
-		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(2);
+		Integer desiredCommunities = 2;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(desiredCommunities);
 
 		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
 	}
@@ -710,7 +720,8 @@ public class SocialNetworkGraphTest {
 		logger.debug("testGraph - " + testGraph);
 
 		Integer expectedCommunities = 2;
-		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(2);
+		Integer desiredCommunities = 2;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(desiredCommunities);
 
 		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
 	}
@@ -763,9 +774,34 @@ public class SocialNetworkGraphTest {
 		logger.debug("testGraph before testGetAtLeastNCommunitiesUsingBrandes() - " + testGraph);
 
 		Integer expectedCommunities = 2;
-		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(2);
+		Integer desiredCommunities = 2;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(desiredCommunities);
 
 		Assert.assertEquals(expectedCommunities.intValue(), actualCommunities.size());
+	}
+
+	@Test
+	public void setTestGraphLoaderWithLabels(){
+		logger.info("TEST - testGetCommunitiesForSmallTestGraph");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		loadGraph2(testGraph, "data/imdb_actors_with_id.csv");
+		assertEquals(14367, testGraph.getNumEdges());
+		assertEquals(6259, testGraph.getNumVertices());
+	}
+
+	@Test
+	public void testGetCommunitiesUsingBrandesForImdb() {
+		logger.info("TEST - testGetCommunitiesUsingBrandesForImdb");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		loadGraph2(testGraph, "data/imdb_actors_with_id.csv");
+
+		logger.debug("testGraph - " + testGraph);
+
+		Integer expectedCommunities = 5;
+		Integer desiredCommunities = 5;
+		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(desiredCommunities);
+
+		Assert.assertTrue(expectedCommunities.intValue() <= actualCommunities.size());
 	}
 }
 
