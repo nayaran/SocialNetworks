@@ -308,7 +308,7 @@ public class SocialNetworkGraph implements Graph {
 	}
 
 	public String toString() {
-		String s = "\n";
+		String s = "\n\n";
 		s += " #Vertices - " + graph.size();
 		if (getNumEdges() > 0) s += ", #Edges - " + getNumEdges();
 		// s += "\n Edges - " + getStringifiedEdgesList();
@@ -968,8 +968,8 @@ public class SocialNetworkGraph implements Graph {
         long computeBetweennessTime = 0;
         long removeEdgeTime = 0;
         long retrievingSubgraphTime = 0;
-
-        while (iterations > 0) {
+		long counter = 1;
+        while (counter <= iterations) {
             logger.debug("COMMUNITY DETECTION: Iteration - {}", iterations);
 
             // STEP I
@@ -984,16 +984,17 @@ public class SocialNetworkGraph implements Graph {
             removeEdgeTime = System.currentTimeMillis() - startTime;
             logger.debug("COMMUNITY DETECTION: STEP II - Removing edges with max betweenness - Took {}ms", removeEdgeTime);
 
-            iterations--;
+			// STEP III
+			startTime = System.currentTimeMillis();
+			communities = getConnectedComponents();
+			retrievingSubgraphTime = System.currentTimeMillis() - startTime;
+			logger.debug("COMMUNITY DETECTION: STEP III - Retrieving subgraphs - Took {}ms", retrievingSubgraphTime);
+			logger.info("COMMUNITY DETECTION: Detected communities - {} in {} iterations - {}", communities.size(),
+					counter, communities);
+
+            counter++;
         }
 
-        // STEP III
-        startTime = System.currentTimeMillis();
-        communities = getConnectedComponents();
-        retrievingSubgraphTime = System.currentTimeMillis() - startTime;
-        logger.debug("COMMUNITY DETECTION: STEP III - Retrieving subgraphs - Took {}ms", retrievingSubgraphTime);
-
-        logger.info("COMMUNITY DETECTION: Detected communities - {} - {}", communities.size(), communities);
 
         logger.debug("COMMUNITY DETECTION: FINISHED");
         logger.debug("Total time - {}", (computeBetweennessTime + removeEdgeTime + retrievingSubgraphTime));

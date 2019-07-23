@@ -16,6 +16,7 @@ import graph.SocialNetworkEdge;
 import graph.SocialNetworkGraph;
 import graph.SocialNetworkNode;
 import util.GraphLoader;
+import util.GraphLoaderForDirectors;
 import util.GraphLoaderWithLabels;
 
 public class SocialNetworkGraphTest {
@@ -41,6 +42,14 @@ public class SocialNetworkGraphTest {
 		logger.info("Loading graph from " + fileName);
 		long startTime = System.currentTimeMillis();
 		GraphLoaderWithLabels.loadGraph(graph, fileName);
+		logger.info("Parsed - " + graph.getSummaryAsString());
+		logger.info("Took {}ms", System.currentTimeMillis() - startTime);
+	}
+
+	private void loadGraph3(SocialNetworkGraph graph, String fileName) {
+		logger.info("Loading graph from " + fileName);
+		long startTime = System.currentTimeMillis();
+		GraphLoaderForDirectors.loadGraph(graph, fileName);
 		logger.info("Parsed - " + graph.getSummaryAsString());
 		logger.info("Took {}ms", System.currentTimeMillis() - startTime);
 	}
@@ -790,8 +799,8 @@ public class SocialNetworkGraphTest {
 	}
 
 	@Test
-	public void testGetCommunitiesUsingBrandesForImdb() {
-		logger.info("TEST - testGetCommunitiesUsingBrandesForImdb");
+	public void testGetCommunitiesUsingBrandesForImdbActors() {
+		logger.info("TEST - testGetCommunitiesUsingBrandesForImdbActors");
 		SocialNetworkGraph testGraph = new SocialNetworkGraph();
 		loadGraph2(testGraph, "data/imdb_actors_with_id.csv");
 
@@ -802,6 +811,20 @@ public class SocialNetworkGraphTest {
 		List<SocialNetworkGraph> actualCommunities = testGraph.getAtLeastNCommunitiesUsingBrandes(desiredCommunities);
 
 		Assert.assertTrue(expectedCommunities.intValue() <= actualCommunities.size());
+	}
+
+	@Test
+	public void testGetCommunitiesUsingBrandesForImdbDirectors() {
+		logger.info("TEST - testGetCommunitiesUsingBrandesForImdbDirectors");
+		SocialNetworkGraph testGraph = new SocialNetworkGraph();
+		loadGraph3(testGraph, "data/directors.csv");
+
+		logger.debug("testGraph - " + testGraph);
+		logger.info("\ntestGraph edges - " + testGraph.getEdges() + "\n");
+		logger.info("\ntestGraph edges stringfied- " + testGraph.getStringifiedEdgesList() + "\n");
+		List<SocialNetworkGraph> actualCommunities = testGraph.getCommunitiesUsingBrandes(10);
+
+		Assert.assertTrue(actualCommunities.size() > 0);
 	}
 }
 
